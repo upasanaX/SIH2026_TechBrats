@@ -130,6 +130,12 @@ npm run server
 
 The API is available at `http://localhost:4000/api`. Sandbox OTP verification accepts `123456`. Use `npm run server:dev` for automatic restart during backend work.
 
+Marketplace order cancellation endpoints are available under `/api/v1/marketplace/orders`:
+
+- `POST /:id/cancel` for the authenticated consumer, with an optional `{ "reason": "..." }` body.
+- `POST /:id/cancellation/respond` for the assigned farmer, with `{ "approve": true|false }`.
+- `GET /:id` returns `cancellationDeadline` for the live 30-minute countdown.
+
 ### Build Production Bundle
 ```bash
 npm run build

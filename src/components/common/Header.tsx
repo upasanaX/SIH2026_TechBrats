@@ -12,12 +12,11 @@ import {
   Volume2, 
   VolumeX, 
   Menu, 
-  UserCheck, 
   ChevronDown,
   Sparkles,
   PhoneCall
 } from 'lucide-react';
-import { Role, Language } from '../../types';
+import { Language } from '../../types';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -26,8 +25,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { 
     currentPanchayat, 
-    currentRole, 
-    setCurrentRole, 
     language, 
     setLanguage, 
     cart, 
@@ -46,7 +43,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
 
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -55,12 +51,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const hasCriticalWarning = alerts.some(
     a => a.primaryPanchayatId === currentPanchayat.id && (a.severity === 'critical' || a.severity === 'high')
   );
-
-  const roles: { key: Role; label: string; sub: string }[] = [
-    { key: 'farmer', label: t('navFarmerDashboard'), sub: t('tagline') },
-    { key: 'consumer', label: t('navMarketplace'), sub: t('farmerShare') },
-    { key: 'official', label: t('navGovernment'), sub: t('navCommunication') }
-  ];
 
   const languages: { key: Language; label: string; native: string }[] = [
     { key: 'en', label: 'English', native: 'English' },
@@ -217,7 +207,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               <button
                 onClick={() => {
                   setLangDropdownOpen(!langDropdownOpen);
-                  setRoleDropdownOpen(false);
                 }}
                 className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
                 title={t('selectLanguage')}
@@ -246,54 +235,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                     >
                       <span>{l.label}</span>
                       <span className="text-[11px] text-slate-400">{l.native}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Role / Demo-Mode Switcher Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setRoleDropdownOpen(!roleDropdownOpen);
-                  setLangDropdownOpen(false);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors shadow-2xs"
-              >
-                <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
-                <span className="hidden sm:inline">
-                  {currentRole === 'farmer' ? 'Farmer Mode' : currentRole === 'consumer' ? 'Consumer' : 'FPO / Govt'}
-                </span>
-                <ChevronDown className="w-3 h-3 text-emerald-700" />
-              </button>
-
-              {roleDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in">
-                  <div className="px-3 py-1 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 mb-1">
-                    {t('evaluatorRoleSwitcher')}
-                  </div>
-                  {roles.map(r => (
-                    <button
-                      key={r.key}
-                      onClick={() => {
-                        setCurrentRole(r.key);
-                        setRoleDropdownOpen(false);
-                        if (r.key === 'farmer') setActiveTab('farmer');
-                        if (r.key === 'consumer') setActiveTab('marketplace');
-                        if (r.key === 'official') setActiveTab('government');
-                        showToast(`${t('switchedView')} ${r.label}`);
-                      }}
-                      className={`w-full text-left p-2.5 rounded-lg transition-all mb-1 ${
-                        currentRole === r.key 
-                          ? 'bg-emerald-700 text-white font-semibold shadow-xs' 
-                          : 'hover:bg-slate-100 text-slate-800'
-                      }`}
-                    >
-                      <div className="text-xs font-bold">{r.label}</div>
-                      <div className={`text-[11px] mt-0.5 ${currentRole === r.key ? 'text-emerald-100' : 'text-slate-500'}`}>
-                        {r.sub}
-                      </div>
                     </button>
                   ))}
                 </div>
