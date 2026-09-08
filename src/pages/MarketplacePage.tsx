@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export const MarketplacePage: React.FC = () => {
-  const { addToCart, setActiveTab, setSelectedProductId, showToast } = useApp();
+  const { addToCart, setActiveTab, setSelectedProductId, showToast, t } = useApp();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('freshness');
@@ -30,10 +30,10 @@ export const MarketplacePage: React.FC = () => {
   const [priceBreakdownProduct, setPriceBreakdownProduct] = useState<Product | null>(null);
 
   const categories = [
-    { id: 'all', label: 'All Harvests' },
-    { id: 'grains', label: 'Grains & Rice' },
-    { id: 'vegetables', label: 'Fresh Vegetables' },
-    { id: 'spices', label: 'Spices & Honey' }
+    { id: 'all', label: t('allHarvests') },
+    { id: 'grains', label: t('grainsRice') },
+    { id: 'vegetables', label: t('freshVegetables') },
+    { id: 'spices', label: t('spicesHoney') }
   ];
 
   const locations = [
@@ -96,7 +96,7 @@ export const MarketplacePage: React.FC = () => {
           className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
         >
           <ShoppingCart className="w-4 h-4" />
-          <span>View Cart & Checkout</span>
+          <span>{t('viewCartCheckout')}</span>
         </button>
       </div>
 
@@ -131,7 +131,7 @@ export const MarketplacePage: React.FC = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="text"
-              placeholder="Search rice, tomatoes, mustard, farmer..."
+              placeholder={t('searchMarketplace')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:bg-white"
@@ -171,7 +171,7 @@ export const MarketplacePage: React.FC = () => {
               }`}
             >
               <Leaf className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Organic Only</span>
+              <span>{t('organic')}</span>
             </button>
 
           </div>

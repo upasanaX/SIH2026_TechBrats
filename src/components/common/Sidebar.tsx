@@ -24,7 +24,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
-  const { activeTab, setActiveTab, alerts, currentPanchayat, cart } = useApp();
+  const { activeTab, setActiveTab, alerts, currentPanchayat, cart, t } = useApp();
 
   const activeAlertCount = alerts.filter(
     a => a.primaryPanchayatId === currentPanchayat.id && (a.severity === 'critical' || a.severity === 'high')
@@ -34,29 +34,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
 
   const navSections = [
     {
-      title: 'Operational Hub',
+      title: t('operationalHub'),
       items: [
-        { id: 'landing', label: 'Public Home', icon: Home },
-        { id: 'farmer', label: 'Farmer Dashboard', icon: LayoutDashboard },
-        { id: 'weather', label: 'Hyperlocal Weather', icon: CloudSun },
+        { id: 'landing', label: t('publicHome'), icon: Home },
+        { id: 'farmer', label: t('navFarmerDashboard'), icon: LayoutDashboard },
+        { id: 'weather', label: t('navWeather'), icon: CloudSun },
         { 
           id: 'alerts', 
-          label: 'Disaster Alerts', 
+          label: t('navAlerts'), 
           icon: ShieldAlert, 
           badge: activeAlertCount > 0 ? activeAlertCount : undefined,
           badgeColor: 'bg-red-600 text-white'
         },
-        { id: 'advisory', label: 'Crop Advisory', icon: Sprout }
+        { id: 'advisory', label: t('navAdvisory'), icon: Sprout }
       ]
     },
     {
-      title: 'Field & Direct Trade',
+      title: t('fieldDirectTrade'),
       items: [
-        { id: 'map', label: 'Farm & Panchayat Map', icon: Map },
-        { id: 'marketplace', label: 'Direct Marketplace', icon: Store },
+        { id: 'map', label: t('navMap'), icon: Map },
+        { id: 'marketplace', label: t('navMarketplace'), icon: Store },
         { 
           id: 'cart', 
-          label: 'Cart & Order Flow', 
+          label: t('cartOrderFlow'), 
           icon: ShoppingCart,
           badge: cartItemCount > 0 ? cartItemCount : undefined,
           badgeColor: 'bg-emerald-600 text-white'
@@ -64,18 +64,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
       ]
     },
     {
-      title: 'Governance & Reach',
+      title: t('governanceReach'),
       items: [
-        { id: 'government', label: 'FPO / Govt Monitoring', icon: Building2 },
-        { id: 'communication', label: 'SMS & IVR Center', icon: Radio }
+        { id: 'government', label: t('navGovernment'), icon: Building2 },
+        { id: 'communication', label: t('smsIvrCenter'), icon: Radio }
       ]
     },
     {
-      title: 'Platform Overview',
+      title: t('platformOverview'),
       items: [
-        { id: 'about', label: 'About KrishiKavach', icon: HelpCircle },
-        { id: 'architecture', label: 'Technical Architecture', icon: Cpu },
-        { id: 'auth', label: 'Login & Registration', icon: LogIn },
+        { id: 'about', label: t('navAbout'), icon: HelpCircle },
+        { id: 'architecture', label: t('technicalArchitecture'), icon: Cpu },
+        { id: 'auth', label: t('loginRegistration'), icon: LogIn },
         { id: 'settings', label: 'Settings & Privacy', icon: Settings }
       ]
     }

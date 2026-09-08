@@ -53,7 +53,10 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentPanchayat, setCurrentPanchayat] = useState<Panchayat>(DEFAULT_PANCHAYAT);
   const [currentRole, setCurrentRole] = useState<Role>('farmer');
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(() => {
+    const savedLanguage = window.localStorage.getItem('krishikavach-language');
+    return savedLanguage === 'hi' || savedLanguage === 'bn' ? savedLanguage : 'en';
+  });
   const [activeTab, setActiveTab] = useState<string>('landing');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -65,6 +68,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  const localizedAlerts = alerts.map(alert => ({
+    ...alert,
+    title: language === 'hi' ? alert.titleHindi : language === 'bn' ? alert.titleBengali : alert.title
+  }));
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    window.localStorage.setItem('krishikavach-language', lang);
+  };
 
   // Sync class on document body for accessibility
   useEffect(() => {
@@ -213,7 +226,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         clearCart,
         orders,
         createOrder,
-        alerts,
+        alerts: localizedAlerts,
         acknowledgeAlert,
         selectedAlert,
         setSelectedAlert,

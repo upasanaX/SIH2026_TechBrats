@@ -11,7 +11,7 @@ interface PanchayatSelectorModalProps {
 }
 
 export const PanchayatSelectorModal: React.FC<PanchayatSelectorModalProps> = ({ isOpen, onClose }) => {
-  const { currentPanchayat, setCurrentPanchayat, showToast } = useApp();
+  const { currentPanchayat, setCurrentPanchayat, showToast, t } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
 
   if (!isOpen) return null;
@@ -41,8 +41,8 @@ export const PanchayatSelectorModal: React.FC<PanchayatSelectorModalProps> = ({ 
               <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold">Select Active Panchayat</h2>
-              <p className="text-xs text-slate-300">Choose a location to view localized downscaled meteorology & alerts</p>
+              <h2 className="text-lg font-bold">{t('changePanchayat')}</h2>
+              <p className="text-xs text-slate-300">{t('districtVsPanchayat')}</p>
             </div>
           </div>
           <button 
@@ -59,7 +59,7 @@ export const PanchayatSelectorModal: React.FC<PanchayatSelectorModalProps> = ({ 
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="text"
-              placeholder="Search by Panchayat name, block, or district..."
+              placeholder={t('searchHazard')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
@@ -103,7 +103,7 @@ export const PanchayatSelectorModal: React.FC<PanchayatSelectorModalProps> = ({ 
                     {p.activeAlertCount > 0 && (
                       <span className="flex items-center gap-1 text-red-600 font-semibold">
                         <ShieldAlert className="w-3.5 h-3.5" />
-                        {p.activeAlertCount} Active Warnings
+                        {p.activeAlertCount} {t('allWarnings')}
                       </span>
                     )}
                   </div>
@@ -120,7 +120,7 @@ export const PanchayatSelectorModal: React.FC<PanchayatSelectorModalProps> = ({ 
                     </span>
                   ) : (
                     <button className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-colors">
-                      Select
+                      {t('change')}
                     </button>
                   )}
                 </div>
@@ -130,7 +130,7 @@ export const PanchayatSelectorModal: React.FC<PanchayatSelectorModalProps> = ({ 
 
           {filtered.length === 0 && (
             <div className="py-8 text-center text-slate-500 text-sm">
-              No Panchayats matched your search criteria. Try a different query.
+              {t('searchHazard')}
             </div>
           )}
         </div>
@@ -142,7 +142,7 @@ export const PanchayatSelectorModal: React.FC<PanchayatSelectorModalProps> = ({ 
             onClick={onClose}
             className="px-3 py-1.5 text-slate-700 font-medium hover:text-slate-900"
           >
-            Cancel
+            {t('standardTheme')}
           </button>
         </div>
       </div>

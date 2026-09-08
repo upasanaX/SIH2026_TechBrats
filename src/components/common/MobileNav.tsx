@@ -7,23 +7,23 @@ interface MobileNavProps {
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({ onOpenSidebar }) => {
-  const { activeTab, setActiveTab, alerts, currentPanchayat } = useApp();
+  const { activeTab, setActiveTab, alerts, currentPanchayat, t } = useApp();
 
   const activeAlertCount = alerts.filter(
     a => a.primaryPanchayatId === currentPanchayat.id && (a.severity === 'critical' || a.severity === 'high')
   ).length;
 
   const tabs = [
-    { id: 'farmer', label: 'Farmer', icon: LayoutDashboard },
-    { id: 'weather', label: 'Weather', icon: CloudSun },
+    { id: 'farmer', label: t('farmerRole'), icon: LayoutDashboard },
+    { id: 'weather', label: t('navWeather'), icon: CloudSun },
     { 
       id: 'alerts', 
-      label: 'Alerts', 
+      label: t('navAlerts'), 
       icon: ShieldAlert,
       badge: activeAlertCount > 0 ? activeAlertCount : undefined 
     },
-    { id: 'advisory', label: 'Advisory', icon: Sprout },
-    { id: 'marketplace', label: 'Market', icon: Store }
+    { id: 'advisory', label: t('navAdvisory'), icon: Sprout },
+    { id: 'marketplace', label: t('navMarketplace'), icon: Store }
   ];
 
   return (
@@ -58,7 +58,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onOpenSidebar }) => {
         className="flex flex-col items-center py-1 px-2 text-[10px] font-semibold text-slate-500 hover:text-slate-800"
       >
         <Menu className="w-5 h-5" />
-        <span className="mt-0.5">More</span>
+        <span className="mt-0.5">{t('platformOverview')}</span>
       </button>
     </div>
   );

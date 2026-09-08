@@ -22,7 +22,12 @@ import {
 import { PANCHAYAT_WEATHER } from '../data/weatherData';
 
 export const LandingPage: React.FC = () => {
-  const { setActiveTab, currentPanchayat } = useApp();
+  const { setActiveTab, currentPanchayat, language } = useApp();
+  const landingCopy = {
+    en: { badge: 'National Agri-Tech Initiative • Dual-Channel Agri-Defense', title: 'Weather intelligence that protects every Panchayat.', description: 'KrishiKavach transforms broad regional forecasts into village-accurate weather predictions, localized disaster early warnings, crop-saving advisories, and a direct farmer-to-consumer marketplace.', live: 'View Live Farmer Dashboard', explore: 'Explore Solution Architecture', ai: 'Panchayat-Level AI', warnings: 'Disaster Warnings', sales: 'Direct Sales Hub', channels: 'App, SMS & IVR', active: 'Active', inspect: 'Inspect Panchayat Micro-Grid Comparison' },
+    hi: { badge: 'राष्ट्रीय कृषि-तकनीक पहल • दो-चैनल कृषि सुरक्षा', title: 'मौसम की जानकारी हर पंचायत की रक्षा करती है।', description: 'कृषिकवच क्षेत्रीय पूर्वानुमानों को गांव-स्तरीय मौसम जानकारी, स्थानीय आपदा चेतावनी, फसल सलाह और सीधे किसान-उपभोक्ता बाजार में बदलता है।', live: 'किसान डैशबोर्ड देखें', explore: 'समाधान वास्तुकला देखें', ai: 'पंचायत-स्तरीय AI', warnings: 'आपदा चेतावनियां', sales: 'सीधा बिक्री केंद्र', channels: 'ऐप, SMS और IVR', active: 'सक्रिय', inspect: 'पंचायत माइक्रो-ग्रिड तुलना देखें' },
+    bn: { badge: 'জাতীয় কৃষি-প্রযুক্তি উদ্যোগ • দ্বৈত-চ্যানেল কৃষি সুরক্ষা', title: 'আবহাওয়ার তথ্য প্রতিটি পঞ্চায়েতকে সুরক্ষিত করে।', description: 'কৃষিকবচ আঞ্চলিক পূর্বাভাসকে গ্রাম-নির্ভুল আবহাওয়া, স্থানীয় দুর্যোগ সতর্কতা, ফসল পরামর্শ এবং সরাসরি কৃষক-ক্রেতা বাজারে রূপান্তর করে।', live: 'কৃষক ড্যাশবোর্ড দেখুন', explore: 'সমাধানের কাঠামো দেখুন', ai: 'পঞ্চায়েত-স্তরের AI', warnings: 'দুর্যোগ সতর্কতা', sales: 'সরাসরি বিক্রয় কেন্দ্র', channels: 'অ্যাপ, SMS ও IVR', active: 'সক্রিয়', inspect: 'পঞ্চায়েত মাইক্রো-গ্রিড তুলনা দেখুন' }
+  }[language];
   const weather = PANCHAYAT_WEATHER[currentPanchayat.id] || PANCHAYAT_WEATHER['panchayat-bhangar-1'];
 
   const pillars = [
@@ -90,15 +95,15 @@ export const LandingPage: React.FC = () => {
               
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                National Agri-Tech Initiative • Dual-Channel Agri-Defense
+                {landingCopy.badge}
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight">
-                Weather intelligence that protects every <span className="text-emerald-700 underline decoration-emerald-300">Panchayat</span>.
+                {landingCopy.title}
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-                KrishiKavach transforms broad regional forecasts into village-accurate weather predictions, localized disaster early warnings, crop-saving advisories, and a direct farmer-to-consumer marketplace.
+                {landingCopy.description}
               </p>
 
               {/* CTAs */}
@@ -107,7 +112,7 @@ export const LandingPage: React.FC = () => {
                   onClick={() => setActiveTab('farmer')}
                   className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2"
                 >
-                  <span>View Live Farmer Dashboard</span>
+                  <span>{landingCopy.live}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -115,7 +120,7 @@ export const LandingPage: React.FC = () => {
                   onClick={() => setActiveTab('about')}
                   className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-xl font-bold text-sm transition-colors"
                 >
-                  Explore Solution Architecture
+                  {landingCopy.explore}
                 </button>
               </div>
 
@@ -123,19 +128,19 @@ export const LandingPage: React.FC = () => {
               <div className="pt-6 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span className="font-semibold text-slate-700">Panchayat-Level AI</span>
+                  <span className="font-semibold text-slate-700">{landingCopy.ai}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span className="font-semibold text-slate-700">Disaster Warnings</span>
+                  <span className="font-semibold text-slate-700">{landingCopy.warnings}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span className="font-semibold text-slate-700">Direct Sales Hub</span>
+                  <span className="font-semibold text-slate-700">{landingCopy.sales}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span className="font-semibold text-slate-700">App, SMS & IVR</span>
+                  <span className="font-semibold text-slate-700">{landingCopy.channels}</span>
                 </div>
               </div>
 
@@ -153,7 +158,7 @@ export const LandingPage: React.FC = () => {
                     <span className="text-xs font-mono text-slate-300 ml-2">Live Node: {currentPanchayat.name}</span>
                   </div>
                   <span className="text-[10px] uppercase font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-sm border border-emerald-500/30">
-                    Active
+                    {landingCopy.active}
                   </span>
                 </div>
 
@@ -204,7 +209,7 @@ export const LandingPage: React.FC = () => {
                     onClick={() => setActiveTab('weather')}
                     className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
                   >
-                    <span>Inspect Panchayat Micro-Grid Comparison</span>
+                    <span>{landingCopy.inspect}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
 

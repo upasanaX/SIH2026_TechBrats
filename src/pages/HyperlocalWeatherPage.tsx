@@ -38,8 +38,10 @@ import {
 } from 'recharts';
 
 export const HyperlocalWeatherPage: React.FC = () => {
-  const { currentPanchayat, setCurrentPanchayat, showToast } = useApp();
+  const { currentPanchayat, setCurrentPanchayat, showToast, t } = useApp();
+  const [selectedDistrict, setSelectedDistrict] = useState(currentPanchayat.district);
   const [selectedBlock, setSelectedBlock] = useState(currentPanchayat.block);
+  const [selectedCrop, setSelectedCrop] = useState(currentPanchayat.primaryCrops[0]);
   
   const weather = PANCHAYAT_WEATHER[currentPanchayat.id] || PANCHAYAT_WEATHER['panchayat-bhangar-1'];
   const comparison = DISTRICT_VS_PANCHAYAT_COMPARISONS[currentPanchayat.id] || DISTRICT_VS_PANCHAYAT_COMPARISONS['panchayat-bhangar-1'];
@@ -48,9 +50,25 @@ export const HyperlocalWeatherPage: React.FC = () => {
     const found = PANCHAYATS.find(p => p.id === panchayatId);
     if (found) {
       setCurrentPanchayat(found);
+      setSelectedDistrict(found.district);
       setSelectedBlock(found.block);
+      setSelectedCrop(found.primaryCrops[0]);
       showToast(`Loaded meteorological grid for ${found.name}`);
     }
+  };
+
+  const districts = Array.from(new Set(PANCHAYATS.map(p => p.district)));
+  const blocks = Array.from(new Set(PANCHAYATS.filter(p => p.district === selectedDistrict).map(p => p.block)));
+  const panchayatsInBlock = PANCHAYATS.filter(p => p.district === selectedDistrict && p.block === selectedBlock);
+
+  const handleDistrictChange = (district: string) => {
+    const firstInDistrict = PANCHAYATS.find(p => p.district === district);
+    if (firstInDistrict) handlePanchayatChange(firstInDistrict.id);
+  };
+
+  const handleBlockChange = (block: string) => {
+    const firstInBlock = PANCHAYATS.find(p => p.district === selectedDistrict && p.block === block);
+    if (firstInBlock) handlePanchayatChange(firstInBlock.id);
   };
 
   return (
@@ -62,10 +80,10 @@ export const HyperlocalWeatherPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Hyperlocal Downscaled Weather Intelligence
+                {t('hyperlocalWeather')}
               </h1>
               <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-sm border border-emerald-300">
-                2.5 km Micro-Grid
+                {t('microGrid')}
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -86,36 +104,37 @@ export const HyperlocalWeatherPage: React.FC = () => {
         {/* Dynamic Multi-Level Geographic Cascading Selectors */}
         <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
-            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">District</label>
+            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">{t('district')}</label>
             <select 
-              disabled 
-              className="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 cursor-not-allowed"
+              value={selectedDistrict}
+              onChange={(e) => handleDistrictChange(e.target.value)}
+              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-600"
             >
-              <option>{currentPanchayat.district} ({currentPanchayat.state})</option>
+              {districts.map(district => <option key={district} value={district}>{district}</option>)}
             </select>
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Block</label>
+            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">{t('block')}</label>
             <select 
               value={selectedBlock}
-              onChange={(e) => setSelectedBlock(e.target.value)}
+              onChange={(e) => handleBlockChange(e.target.value)}
               className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-600"
             >
-              {(Array.from(new Set(PANCHAYATS.map(p => p.block))) as string[]).map((b, idx) => (
-                <option key={idx} value={b}>{b}</option>
+              {blocks.map((b) => (
+                <option key={b} value={b}>{b}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Gram Panchayat</label>
+            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">{t('gramPanchayat')}</label>
             <select 
               value={currentPanchayat.id}
               onChange={(e) => handlePanchayatChange(e.target.value)}
               className="w-full bg-white border border-emerald-500 rounded-lg px-3 py-2 text-xs font-bold text-emerald-900 focus:ring-2 focus:ring-emerald-600"
             >
-              {PANCHAYATS.map((p) => (
+              {panchayatsInBlock.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} ({p.bengaliName}) - {p.currentRisk.toUpperCase()}
                 </option>
@@ -124,10 +143,14 @@ export const HyperlocalWeatherPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Primary Crop Profile</label>
-            <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium truncate">
-              {currentPanchayat.primaryCrops.join(', ')}
-            </div>
+            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">{t('primaryCrop')}</label>
+            <select
+              value={selectedCrop}
+              onChange={(e) => setSelectedCrop(e.target.value)}
+              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-600"
+            >
+              {currentPanchayat.primaryCrops.map(crop => <option key={crop} value={crop}>{crop}</option>)}
+            </select>
           </div>
         </div>
       </div>

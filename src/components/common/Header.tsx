@@ -40,7 +40,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
     setLargeText,
     isSpeaking,
     stopSpeaking,
-    showToast
+    showToast,
+    t
   } = useApp();
 
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -56,9 +57,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   );
 
   const roles: { key: Role; label: string; sub: string }[] = [
-    { key: 'farmer', label: 'Farmer Dashboard', sub: 'Weather, crop protection & market sales' },
-    { key: 'consumer', label: 'Consumer Marketplace', sub: 'Buy directly from certified farmers' },
-    { key: 'official', label: 'Govt / FPO Monitoring', sub: 'District oversight, alerts & logistics' }
+    { key: 'farmer', label: t('navFarmerDashboard'), sub: t('tagline') },
+    { key: 'consumer', label: t('navMarketplace'), sub: t('farmerShare') },
+    { key: 'official', label: t('navGovernment'), sub: t('navCommunication') }
   ];
 
   const languages: { key: Language; label: string; native: string }[] = [
@@ -76,13 +77,13 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <div className="flex items-center gap-2 max-w-5xl mx-auto w-full">
               <ShieldAlert className="w-4 h-4 shrink-0 text-amber-300" />
               <span>
-                <strong>CRITICAL WEATHER ADVISORY:</strong> High precipitation risk detected over {currentPanchayat.name} ({currentPanchayat.block}).
+                <strong>{t('riskCritical')}:</strong> {t('rainfallExpected')} {currentPanchayat.name} ({currentPanchayat.block}).
               </span>
               <button 
                 onClick={() => setActiveTab('alerts')} 
                 className="underline hover:text-amber-200 ml-2 font-bold cursor-pointer"
               >
-                View Action Checklist →
+                {t('viewActionChecklist')} →
               </button>
             </div>
             <button 
@@ -90,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               className="hidden sm:flex items-center gap-1 bg-white text-red-800 px-2 py-0.5 rounded-sm text-[11px] font-bold hover:bg-amber-100"
             >
               <PhoneCall className="w-3 h-3" />
-              Simulate SMS / IVR Broadcast
+              {t('simulateSmsIvr')}
             </button>
           </div>
         )}
@@ -103,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               <button 
                 onClick={onMenuToggle}
                 className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 lg:hidden"
-                aria-label="Toggle Navigation"
+                aria-label={t('navHome')}
               >
                 <Menu className="w-5 h-5" />
               </button>
@@ -136,7 +137,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <button
               onClick={() => setIsLocationModalOpen(true)}
               className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-emerald-50 border border-slate-300 hover:border-emerald-500 rounded-lg text-xs transition-all shadow-2xs group"
-              title="Click to switch Panchayat"
+                title={t('changePanchayat')}
             >
               <MapPin className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
               <div className="text-left">
@@ -160,10 +161,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               <button
                 onClick={stopSpeaking}
                 className="flex items-center gap-1.5 px-2.5 py-1 bg-red-100 border border-red-300 text-red-800 rounded-full text-xs font-semibold animate-pulse"
-                title="Stop spoken audio advisory"
+                title={t('stopAudio')}
               >
                 <VolumeX className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Stop Audio</span>
+                <span className="hidden sm:inline">{t('stopAudio')}</span>
               </button>
             )}
 
@@ -171,25 +172,25 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <button
               onClick={() => setIsSmsModalOpen(true)}
               className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-700 text-white rounded-lg text-xs font-semibold hover:bg-emerald-800 transition-colors shadow-xs"
-              title="Simulate SMS dispatch and IVR voice call"
+              title={t('simulateSmsIvr')}
             >
               <PhoneCall className="w-3.5 h-3.5 text-emerald-200" />
-              <span>SMS / IVR Test</span>
+              <span>{t('smsIvrTest')}</span>
             </button>
 
             {/* Accessibility: High Contrast */}
             <button
               onClick={() => {
                 setHighContrast(!highContrast);
-                showToast(highContrast ? 'Standard theme restored' : 'High-contrast mode activated for low-visibility');
+                showToast(highContrast ? t('standardTheme') : t('highContrastActivated'));
               }}
               className={`p-1.5 rounded-lg border text-xs transition-colors ${
                 highContrast 
                   ? 'bg-amber-400 text-black border-amber-500 font-bold' 
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
-              title="Toggle High Contrast Mode"
-              aria-label="Toggle High Contrast Mode"
+              title={t('highContrastActivated')}
+              aria-label={t('highContrastActivated')}
             >
               <Eye className="w-4 h-4" />
             </button>
@@ -198,15 +199,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <button
               onClick={() => {
                 setLargeText(!largeText);
-                showToast(largeText ? 'Standard font size' : 'Large text mode activated');
+                showToast(largeText ? t('standardFont') : t('largeTextActivated'));
               }}
               className={`p-1.5 rounded-lg border text-xs transition-colors ${
                 largeText 
                   ? 'bg-emerald-700 text-white border-emerald-800 font-bold' 
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
-              title="Toggle Large Text Mode"
-              aria-label="Toggle Large Text Mode"
+              title={t('largeTextActivated')}
+              aria-label={t('largeTextActivated')}
             >
               <Type className="w-4 h-4" />
             </button>
@@ -219,7 +220,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                   setRoleDropdownOpen(false);
                 }}
                 className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
-                title="Change language"
+                title={t('selectLanguage')}
               >
                 <Globe className="w-3.5 h-3.5 text-slate-500" />
                 <span className="uppercase">{language}</span>
@@ -229,7 +230,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               {langDropdownOpen && (
                 <div className="absolute right-0 mt-1.5 w-40 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-50 animate-in fade-in">
                   <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100">
-                    Select Language
+                    {t('selectLanguage')}
                   </div>
                   {languages.map(l => (
                     <button
@@ -270,7 +271,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               {roleDropdownOpen && (
                 <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in">
                   <div className="px-3 py-1 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 mb-1">
-                    Evaluator Demo Role Switcher
+                    {t('evaluatorRoleSwitcher')}
                   </div>
                   {roles.map(r => (
                     <button
@@ -281,7 +282,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                         if (r.key === 'farmer') setActiveTab('farmer');
                         if (r.key === 'consumer') setActiveTab('marketplace');
                         if (r.key === 'official') setActiveTab('government');
-                        showToast(`Switched view to ${r.label}`);
+                        showToast(`${t('switchedView')} ${r.label}`);
                       }}
                       className={`w-full text-left p-2.5 rounded-lg transition-all mb-1 ${
                         currentRole === r.key 
@@ -303,8 +304,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <button
               onClick={() => setActiveTab('cart')}
               className="relative p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 transition-colors"
-              title="View Cart & Orders"
-              aria-label="View Cart"
+              title={t('viewCart')}
+              aria-label={t('viewCart')}
             >
               <ShoppingCart className="w-4 h-4" />
               {cartItemCount > 0 && (
@@ -326,13 +327,13 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           >
             <MapPin className="w-3.5 h-3.5 text-emerald-600" />
             <span>{currentPanchayat.name}, {currentPanchayat.district}</span>
-            <span className="text-[10px] text-emerald-700 underline font-normal">(Change)</span>
+            <span className="text-[10px] text-emerald-700 underline font-normal">({t('change')})</span>
           </button>
           <button
             onClick={() => setIsSmsModalOpen(true)}
             className="text-[10px] font-bold bg-emerald-700 text-white px-2 py-0.5 rounded-sm"
           >
-            SMS / IVR Test
+            {t('smsIvrTest')}
           </button>
         </div>
       </header>

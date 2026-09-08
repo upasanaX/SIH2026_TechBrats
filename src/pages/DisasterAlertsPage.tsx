@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export const DisasterAlertsPage: React.FC = () => {
-  const { alerts, currentPanchayat, acknowledgeAlert, showToast } = useApp();
+  const { alerts, currentPanchayat, acknowledgeAlert, showToast, t } = useApp();
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -35,20 +35,20 @@ export const DisasterAlertsPage: React.FC = () => {
   const [simulatorMessage, setSimulatorMessage] = useState<string>('');
 
   const severityFilters: { id: string; label: string; count: number }[] = [
-    { id: 'all', label: 'All Warnings', count: alerts.length },
-    { id: 'critical', label: 'Critical', count: alerts.filter(a => a.severity === 'critical').length },
-    { id: 'high', label: 'High Risk', count: alerts.filter(a => a.severity === 'high').length },
-    { id: 'moderate', label: 'Moderate', count: alerts.filter(a => a.severity === 'moderate').length },
-    { id: 'info', label: 'Informational', count: alerts.filter(a => a.severity === 'info').length }
+    { id: 'all', label: t('allWarnings'), count: alerts.length },
+    { id: 'critical', label: t('critical'), count: alerts.filter(a => a.severity === 'critical').length },
+    { id: 'high', label: t('highRisk'), count: alerts.filter(a => a.severity === 'high').length },
+    { id: 'moderate', label: t('moderate'), count: alerts.filter(a => a.severity === 'moderate').length },
+    { id: 'info', label: t('informational'), count: alerts.filter(a => a.severity === 'info').length }
   ];
 
   const typeFilters: { id: string; label: string; icon: any }[] = [
-    { id: 'all', label: 'All Hazards', icon: ShieldAlert },
-    { id: 'heavy_rain', label: 'Heavy Rain', icon: CloudRain },
-    { id: 'flood_risk', label: 'Flood Surge', icon: Droplets },
-    { id: 'hailstorm', label: 'Hailstorm', icon: CloudLightning },
-    { id: 'heatwave', label: 'Heat Stress', icon: Flame },
-    { id: 'strong_wind', label: 'High Wind', icon: Wind }
+    { id: 'all', label: t('allHazards'), icon: ShieldAlert },
+    { id: 'heavy_rain', label: t('heavyRain'), icon: CloudRain },
+    { id: 'flood_risk', label: t('floodSurge'), icon: Droplets },
+    { id: 'hailstorm', label: t('hailstorm'), icon: CloudLightning },
+    { id: 'heatwave', label: t('heatStress'), icon: Flame },
+    { id: 'strong_wind', label: t('highWind'), icon: Wind }
   ];
 
   const filteredAlerts = alerts.filter(alert => {
@@ -120,7 +120,7 @@ export const DisasterAlertsPage: React.FC = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="text"
-              placeholder="Search by hazard, Panchayat or crop..."
+              placeholder={t('searchHazard')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-600 focus:bg-white"
@@ -153,7 +153,7 @@ export const DisasterAlertsPage: React.FC = () => {
         {/* Hazard Type Pills */}
         <div className="flex items-center gap-2 overflow-x-auto pt-2 border-t border-slate-100 pb-1">
           <span className="text-[11px] font-bold text-slate-400 uppercase mr-1 flex items-center gap-1 shrink-0">
-            <Filter className="w-3.5 h-3.5" /> Hazard Type:
+            <Filter className="w-3.5 h-3.5" /> {t('hazardType')}:
           </span>
           {typeFilters.map(tf => {
             const Icon = tf.icon;

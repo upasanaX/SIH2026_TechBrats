@@ -119,6 +119,17 @@ npm run dev
 ```
 Open `http://localhost:5173/` in any modern web browser.
 
+### Run the Local API
+
+The prototype now includes a small Node.js API for authentication, Panchayat lookup, alerts, marketplace products, orders, and communication dispatch. It persists sandbox data in `server-data.json`.
+
+```bash
+# In a second terminal
+npm run server
+```
+
+The API is available at `http://localhost:4000/api`. Sandbox OTP verification accepts `123456`. Use `npm run server:dev` for automatic restart during backend work.
+
 ### Build Production Bundle
 ```bash
 npm run build

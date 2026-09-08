@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertSeverity } from '../../types';
+import { useApp } from '../../context/AppContext';
 import { AlertTriangle, ShieldAlert, AlertCircle, Info } from 'lucide-react';
 
 interface RiskBadgeProps {
@@ -15,34 +16,27 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({
   className = '',
   size = 'md'
 }) => {
+  const { t } = useApp();
   const config = {
     critical: {
       bg: 'bg-red-800 text-white border-red-900',
       icon: ShieldAlert,
-      label: 'Critical Risk',
-      labelHi: 'गंभीर जोखिम',
-      labelBn: 'জরুরি ঝুঁকি'
+      label: t('riskCritical')
     },
     high: {
       bg: 'bg-red-600 text-white border-red-700',
       icon: AlertTriangle,
-      label: 'High Risk',
-      labelHi: 'उच्च जोखिम',
-      labelBn: 'উচ্চ ঝুঁকি'
+      label: t('riskHigh')
     },
     moderate: {
       bg: 'bg-amber-600 text-white border-amber-700',
       icon: AlertCircle,
-      label: 'Moderate Risk',
-      labelHi: 'मध्यम जोखिम',
-      labelBn: 'মাঝারি ঝুঁকি'
+      label: t('riskModerate')
     },
     info: {
       bg: 'bg-blue-600 text-white border-blue-700',
       icon: Info,
-      label: 'Normal / Advisory',
-      labelHi: 'सामान्य / सलाह',
-      labelBn: 'স্বাভাবিক / পরামর্শ'
+      label: t('riskInfo')
     }
   };
 
