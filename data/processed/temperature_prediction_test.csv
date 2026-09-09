@@ -1,0 +1,2 @@
+time,lgd_code,panchayat_name,latitude,longitude,elevation_m,raw_temperature,predicted_residual,downscaled_temperature
+2025-12-15 12:00:00,260972,Aahaley,26.968183,88.700822,375.0,25.0,2.702995,27.70299506187439

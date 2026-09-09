@@ -1,0 +1,6 @@
+panchayat_name,lgd_code,block,district,latitude,longitude,dataset,elevation,elevation_unit,api_status,returned_latitude,returned_longitude,vcrs_epsg,reference_dataset,error
+Aahaley,260972,Gorubathan,Kalimpong,26.968183,88.700822,SRTM_GL1,375.0,Meters,Success,26.968183,88.700822,5773,SRTM_GL1,
+Abad Bhagawanpur,108220,Mathurapur I,South 24 Parganas,22.034705,88.337723,SRTM_GL1,6.0,Meters,Success,22.034705,88.337723,5773,SRTM_GL1,
+Abinashpur,108917,Suri II,Birbhum,23.817222,87.574944,SRTM_GL1,54.0,Meters,Success,23.817222,87.574944,5773,SRTM_GL1,
+Adabari,109013,Sitai,Cooch Behar,26.123361,89.309876,SRTM_GL1,42.0,Meters,Success,26.123361,89.309876,5773,SRTM_GL1,
+Adhata,107777,Amdanga,North 24 Parganas,22.86632,88.525101,SRTM_GL1,14.0,Meters,Success,22.86632,88.525101,5773,SRTM_GL1,

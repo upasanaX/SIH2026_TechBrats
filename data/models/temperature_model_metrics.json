@@ -1,0 +1,35 @@
+{
+  "experiment": {
+    "target": "temperature residual",
+    "reference": "Open-Meteo training weather",
+    "evaluation_period": "2025-07-01 to 2025-12-31",
+    "training_period": "available 2024 data",
+    "validation_period": "2025-01-01 to 2025-06-30"
+  },
+  "baseline": {
+    "MAE": 2.511784420289855,
+    "RMSE": 3.308293268110626,
+    "Bias": 0.010543478260869573
+  },
+  "temporal_xgboost": {
+    "MAE": 0.925319652428627,
+    "RMSE": 1.228140631027041,
+    "Bias": 0.04348898269802403,
+    "improvement_vs_raw_mae_percent": 63.16086504263582,
+    "improvement_vs_raw_rmse_percent": 62.87691170352515
+  },
+  "spatial_temporal_xgboost": {
+    "MAE": 0.8703855441997546,
+    "RMSE": 1.1436307446807403,
+    "Bias": 0.015543916077963143,
+    "improvement_vs_raw_mae_percent": 65.34792010138698,
+    "improvement_vs_raw_rmse_percent": 65.43139764226918,
+    "improvement_vs_temporal_mae_percent": 5.9367709401492155
+  },
+  "dataset": {
+    "total_rows": 85500,
+    "train_rows": 41700,
+    "validation_rows": 21720,
+    "test_rows": 22080
+  }
+}
