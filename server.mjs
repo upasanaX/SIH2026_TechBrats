@@ -225,6 +225,41 @@ const server = createServer(async (req, res) => {
       persist();
       return send(res, 202, { data: log });
     }
+    // Serve the Vite frontend
+if (req.method === 'GET') {
+  const urlPath = new URL(req.url, `http://${req.headers.host}`).pathname;
+  const distPath = join(dirname(dataPath), 'dist');
+
+  let filePath;
+
+  if (urlPath === '/' || !urlPath.includes('.')) {
+    filePath = join(distPath, 'index.html');
+  } else {
+    filePath = join(distPath, urlPath);
+  }
+
+  if (existsSync(filePath)) {
+    const ext = filePath.split('.').pop();
+    const contentTypes = {
+      html: 'text/html',
+      js: 'application/javascript',
+      css: 'text/css',
+      json: 'application/json',
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      svg: 'image/svg+xml',
+      ico: 'image/x-icon',
+      webp: 'image/webp'
+    };
+
+    const content = readFileSync(filePath);
+    res.writeHead(200, {
+      'Content-Type': contentTypes[ext] || 'application/octet-stream'
+    });
+    return res.end(content);
+  }
+}
     return send(res, 404, { error: 'Route not found' });
   } catch (error) {
     return send(res, 400, { error: error.message || 'Invalid request' });
