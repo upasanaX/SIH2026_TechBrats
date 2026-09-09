@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { PANCHAYAT_WEATHER, HOURLY_FORECASTS, DAILY_FORECASTS } from '../data/weatherData';
 import { RiskBadge } from '../components/common/RiskBadge';
 import { AlertDetailModal } from '../components/common/AlertDetailModal';
-import { SmsIvrSimulatorModal } from '../components/common/SmsIvrSimulatorModal';
 import { 
   Thermometer, 
   CloudRain, 
@@ -14,12 +12,9 @@ import {
   CheckSquare, 
   Square, 
   ArrowRight, 
-  Radio, 
   Volume2, 
   VolumeX, 
-  Store, 
   MapPin, 
-  PhoneCall, 
   Sparkles,
   Sprout,
   AlertTriangle,
@@ -38,6 +33,7 @@ import {
   CartesianGrid 
 } from 'recharts';
 import { DisasterAlert } from '../types';
+import { LiveWeatherState } from '../components/common/LiveWeatherState';
 
 export const FarmerDashboardPage: React.FC = () => {
   const { 
@@ -49,11 +45,15 @@ export const FarmerDashboardPage: React.FC = () => {
     speakAdvisory, 
     isSpeaking, 
     stopSpeaking,
-    showToast 
+    showToast,
+    weatherReading,
+    hourlyForecasts,
+    dailyForecasts,
+    liveWeatherLoading,
+    liveWeatherError
   } = useApp();
 
   const [activeAlertModal, setActiveAlertModal] = useState<DisasterAlert | null>(null);
-  const [isSmsSimulatorOpen, setIsSmsSimulatorOpen] = useState(false);
   const [completedActions, setCompletedActions] = useState<Record<string, boolean>>({
     'act-1': false,
     'act-2': true,
@@ -61,8 +61,16 @@ export const FarmerDashboardPage: React.FC = () => {
     'act-4': false
   });
 
-  const weather = PANCHAYAT_WEATHER[currentPanchayat.id] || PANCHAYAT_WEATHER['panchayat-bhangar-1'];
+  const weather = weatherReading;
   const panchayatAlerts = alerts.filter(a => a.primaryPanchayatId === currentPanchayat.id);
+
+  if (!weather) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <LiveWeatherState loading={liveWeatherLoading} error={liveWeatherError} />
+      </div>
+    );
+  }
 
   const toggleAction = (id: string) => {
     setCompletedActions(prev => {
@@ -76,7 +84,7 @@ export const FarmerDashboardPage: React.FC = () => {
     {
       id: 'act-1',
       title: 'Delay Canal Irrigation & Pumping',
-      desc: 'High precipitation (85% probability) anticipated within 12 hours. Conserve water pumping diesel.',
+      desc: 'Live Open-Meteo precipitation forecast indicates that irrigation decisions should be reviewed before pumping.',
       urgent: true,
       category: 'Irrigation'
     },
@@ -122,14 +130,6 @@ export const FarmerDashboardPage: React.FC = () => {
 
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
-            onClick={() => setIsSmsSimulatorOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
-          >
-            <Radio className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Test SMS/IVR Dispatch</span>
-          </button>
-
-          <button
             onClick={() => setActiveTab('weather')}
             className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg text-xs font-semibold hover:bg-emerald-100 transition-colors"
           >
@@ -148,8 +148,8 @@ export const FarmerDashboardPage: React.FC = () => {
             <span className="text-[11px] font-medium">{t('temperature')}</span>
             <Thermometer className="w-4 h-4 text-amber-600" />
           </div>
-          <div className="text-2xl font-black text-slate-900">{weather.temp}°C</div>
-          <div className="text-[10px] text-slate-400">Feels like {weather.feelsLike}°C</div>
+          <div className="text-2xl font-black text-slate-900">{weather.temp.toFixed(1)}°C</div>
+          <div className="text-[10px] text-emerald-700">ML Downscaled</div>
         </div>
 
         {/* Rain Probability */}
@@ -158,8 +158,8 @@ export const FarmerDashboardPage: React.FC = () => {
             <span className="text-[11px] font-medium">{t('rainProbability')}</span>
             <CloudRain className="w-4 h-4 text-blue-600" />
           </div>
-          <div className="text-2xl font-black text-blue-700">{weather.rainProbability}%</div>
-          <div className="text-[10px] text-slate-500">{weather.rainfallMm} mm Expected</div>
+          <div className="text-2xl font-black text-blue-700">{weather.rainfallMm.toFixed(1)} mm</div>
+          <div className="text-[10px] text-slate-500">Live forecast</div>
         </div>
 
         {/* Wind Speed */}
@@ -168,7 +168,7 @@ export const FarmerDashboardPage: React.FC = () => {
             <span className="text-[11px] font-medium">{t('windSpeed')}</span>
             <Wind className="w-4 h-4 text-teal-600" />
           </div>
-          <div className="text-2xl font-black text-slate-900">{weather.windSpeed} <span className="text-xs font-normal">km/h</span></div>
+          <div className="text-2xl font-black text-slate-900">{weather.windSpeed.toFixed(1)} <span className="text-xs font-normal">km/h</span></div>
           <div className="text-[10px] text-slate-400">{weather.windDirection}</div>
         </div>
 
@@ -178,8 +178,8 @@ export const FarmerDashboardPage: React.FC = () => {
             <span className="text-[11px] font-medium">{t('soilMoisture')}</span>
             <Droplets className="w-4 h-4 text-indigo-600" />
           </div>
-          <div className="text-2xl font-black text-indigo-700">{weather.soilMoisture}%</div>
-          <div className="text-[10px] text-emerald-600 font-medium">Saturated</div>
+          <div className="text-2xl font-black text-indigo-700">Unavailable</div>
+          <div className="text-[10px] text-slate-500">Not supplied by API</div>
         </div>
 
         {/* Alert Status */}
@@ -202,7 +202,7 @@ export const FarmerDashboardPage: React.FC = () => {
             <span className="text-[11px] font-medium">Confidence</span>
             <Clock className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-2xl font-black text-emerald-700">{weather.riskConfidence}%</div>
+          <div className="text-2xl font-black text-emerald-700">Live</div>
           <div className="text-[10px] text-slate-400 truncate">{weather.lastUpdated}</div>
         </div>
 
@@ -254,13 +254,13 @@ export const FarmerDashboardPage: React.FC = () => {
               <p className="text-xs text-slate-500">Max/Min temperatures (°C) and rain probability percentage</p>
             </div>
             <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-sm">
-              Model: XGBoost-Downscaled
+              Temperature: XGBoost local correction; other values are live forecast
             </span>
           </div>
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={DAILY_FORECASTS} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={dailyForecasts} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#15803d" stopOpacity={0.4}/>
@@ -284,7 +284,7 @@ export const FarmerDashboardPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-7 gap-1 pt-2 border-t border-slate-100 text-center">
-            {DAILY_FORECASTS.map((d, i) => (
+            {dailyForecasts.map((d, i) => (
               <div key={i} className="p-1.5 rounded-lg bg-slate-50 text-[10px]">
                 <div className="font-bold text-slate-800">{d.day.slice(0, 3)}</div>
                 <div className="text-slate-500 font-mono mt-0.5">{d.maxTemp}° / {d.minTemp}°</div>
@@ -308,7 +308,7 @@ export const FarmerDashboardPage: React.FC = () => {
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={HOURLY_FORECASTS.slice(0, 8)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={hourlyForecasts.slice(0, 8)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <XAxis dataKey="time" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
@@ -321,7 +321,7 @@ export const FarmerDashboardPage: React.FC = () => {
           </div>
 
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 leading-snug">
-            <strong>Hydrological Note:</strong> Bhangar low-lying alluvial furrows can absorb up to 25mm in 4 hours. Higher precipitation causes surface waterlogging.
+            <strong>Hydrological Note:</strong> Use the live precipitation forecast alongside local drainage conditions and official advisories.
           </div>
         </div>
 
@@ -346,7 +346,7 @@ export const FarmerDashboardPage: React.FC = () => {
 
           <button
             onClick={() => speakAdvisory(
-              `Today's KrishiKavach advisory for ${currentPanchayat.name}: Delay canal irrigation immediately due to eighty-five percent rain probability. Secure harvested produce with poly sheets.`,
+              `Today's KrishiKavach advisory for ${currentPanchayat.name}: Review irrigation before pumping because the live forecast reports ${weather.rainfallMm.toFixed(1)} millimeters of precipitation. Secure harvested produce with poly sheets.`,
               language
             )}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold transition-colors"
@@ -447,71 +447,12 @@ export const FarmerDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Direct Marketplace Snapshot */}
-        <div className="lg:col-span-6 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2">
-              <Store className="w-5 h-5 text-emerald-700" />
-              <h2 className="text-sm font-bold text-slate-900">Direct Farm Produce Orders</h2>
-            </div>
-            <button
-              onClick={() => setActiveTab('marketplace')}
-              className="text-xs font-bold text-emerald-700 hover:underline"
-            >
-              Go to Marketplace →
-            </button>
-          </div>
-
-          <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-emerald-900">Direct Farmer Payout Share</span>
-              <span className="text-sm font-extrabold text-emerald-800">84.5% of Retail</span>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Eliminates the 35% commission slice traditionally lost to sub-agents and arathdars during distress rainfall selling.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <div className="text-xs text-slate-500">Listed Crops</div>
-              <div className="text-lg font-bold text-slate-900">6 Harvests</div>
-            </div>
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <div className="text-xs text-slate-500">Pending Pickups</div>
-              <div className="text-lg font-bold text-emerald-700">14 Orders</div>
-            </div>
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <div className="text-xs text-slate-500">Avg Settlement</div>
-              <div className="text-lg font-bold text-blue-700">Instant UPI</div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setActiveTab('marketplace')}
-            className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
-          >
-            <Store className="w-4 h-4" />
-            <span>List Harvest Produce for Direct Consumer Sale</span>
-          </button>
-        </div>
-
       </div>
 
       {/* Alert Detail Modal */}
       <AlertDetailModal 
         alert={activeAlertModal} 
         onClose={() => setActiveAlertModal(null)}
-        onOpenSimulator={() => {
-          setActiveAlertModal(null);
-          setIsSmsSimulatorOpen(true);
-        }}
-      />
-
-      {/* SMS Simulator Modal */}
-      <SmsIvrSimulatorModal 
-        isOpen={isSmsSimulatorOpen} 
-        onClose={() => setIsSmsSimulatorOpen(false)} 
       />
 
     </div>

@@ -1,30 +1,24 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { LayoutDashboard, CloudSun, ShieldAlert, Sprout, Store, Menu } from 'lucide-react';
+import { LayoutDashboard, ShieldAlert, Store, ShoppingCart, ClipboardList, Menu } from 'lucide-react';
 
 interface MobileNavProps {
   onOpenSidebar: () => void;
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({ onOpenSidebar }) => {
-  const { activeTab, setActiveTab, alerts, currentPanchayat, t } = useApp();
+  const { activeTab, setActiveTab, alerts, currentPanchayat, t, currentRole } = useApp();
 
   const activeAlertCount = alerts.filter(
     a => a.primaryPanchayatId === currentPanchayat.id && (a.severity === 'critical' || a.severity === 'high')
   ).length;
 
-  const tabs = [
-    { id: 'farmer', label: t('farmerRole'), icon: LayoutDashboard },
-    { id: 'weather', label: t('navWeather'), icon: CloudSun },
-    { 
-      id: 'alerts', 
-      label: t('navAlerts'), 
-      icon: ShieldAlert,
-      badge: activeAlertCount > 0 ? activeAlertCount : undefined 
-    },
-    { id: 'advisory', label: t('navAdvisory'), icon: Sprout },
-    { id: 'marketplace', label: t('navMarketplace'), icon: Store }
-  ];
+  const isPrivileged = currentRole === 'fpo' || currentRole === 'government' || currentRole === 'official';
+  const tabs = currentRole === 'consumer'
+    ? [{ id: 'marketplace', label: t('navMarketplace'), icon: Store }, { id: 'cart', label: t('cartOrderFlow'), icon: ShoppingCart }]
+    : isPrivileged
+      ? [{ id: 'government', label: t('adminAnalytics'), icon: LayoutDashboard }, { id: 'alerts', label: t('navAlerts'), icon: ShieldAlert }]
+      : [{ id: 'farmer', label: t('farmerRole'), icon: LayoutDashboard }, { id: 'alerts', label: t('navAlerts'), icon: ShieldAlert, badge: activeAlertCount > 0 ? activeAlertCount : undefined }, { id: 'farmer-orders', label: t('farmerOrders'), icon: ClipboardList }];
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg px-2 py-1 flex items-center justify-around">

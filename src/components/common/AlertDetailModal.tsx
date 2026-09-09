@@ -9,22 +9,18 @@ import {
   Share2, 
   CheckSquare, 
   Square, 
-  PhoneCall, 
   CheckCircle2, 
-  Radio, 
   ExternalLink 
 } from 'lucide-react';
 
 interface AlertDetailModalProps {
   alert: DisasterAlert | null;
   onClose: () => void;
-  onOpenSimulator: () => void;
 }
 
 export const AlertDetailModal: React.FC<AlertDetailModalProps> = ({ 
   alert, 
-  onClose,
-  onOpenSimulator 
+  onClose
 }) => {
   const { acknowledgeAlert, showToast } = useApp();
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
@@ -186,14 +182,6 @@ export const AlertDetailModal: React.FC<AlertDetailModalProps> = ({
         {/* Footer Actions */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <button
-              onClick={onOpenSimulator}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
-            >
-              <PhoneCall className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Simulate SMS / IVR Broadcast</span>
-            </button>
-
             <button
               onClick={handleShare}
               className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-100 transition-colors"

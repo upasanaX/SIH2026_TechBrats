@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { PANCHAYATS } from '../data/panchayats';
-import { 
-  PANCHAYAT_WEATHER, 
-  HOURLY_FORECASTS, 
-  DAILY_FORECASTS, 
-  DISTRICT_VS_PANCHAYAT_COMPARISONS 
-} from '../data/weatherData';
 import { RiskBadge } from '../components/common/RiskBadge';
 import { 
   MapPin, 
@@ -36,15 +30,44 @@ import {
   Tooltip, 
   CartesianGrid 
 } from 'recharts';
+import { LiveWeatherState } from '../components/common/LiveWeatherState';
 
 export const HyperlocalWeatherPage: React.FC = () => {
-  const { currentPanchayat, setCurrentPanchayat, showToast, t } = useApp();
+  const { currentPanchayat, setCurrentPanchayat, showToast, t, weatherReading, hourlyForecasts, liveWeatherLoading, liveWeatherError } = useApp();
   const [selectedDistrict, setSelectedDistrict] = useState(currentPanchayat.district);
   const [selectedBlock, setSelectedBlock] = useState(currentPanchayat.block);
   const [selectedCrop, setSelectedCrop] = useState(currentPanchayat.primaryCrops[0]);
   
-  const weather = PANCHAYAT_WEATHER[currentPanchayat.id] || PANCHAYAT_WEATHER['panchayat-bhangar-1'];
-  const comparison = DISTRICT_VS_PANCHAYAT_COMPARISONS[currentPanchayat.id] || DISTRICT_VS_PANCHAYAT_COMPARISONS['panchayat-bhangar-1'];
+  const weather = weatherReading;
+
+  if (!weather) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <LiveWeatherState loading={liveWeatherLoading} error={liveWeatherError} />
+      </div>
+    );
+  }
+
+  const comparison = {
+    districtName: 'Open-Meteo live forecast reference',
+    panchayatName: `${currentPanchayat.name} live forecast`,
+    districtForecast: {
+      condition: 'Live forecast reference',
+      rainProb: null,
+      temp: 'Direct forecast',
+      resolution: 'Open-Meteo grid',
+      warning: 'No probability value requested'
+    },
+    panchayatForecast: {
+      condition: 'XGBoost temperature correction',
+      rainProb: null,
+      temp: `${weather.temp.toFixed(1)}°C`,
+      resolution: 'Panchayat coordinates',
+      warning: 'Use official advisories for hazards',
+      localizedFeature: 'Panchayat latitude, longitude, and elevation'
+    },
+    downscalingReason: 'Temperature uses the existing XGBoost residual model. Rainfall and other variables remain direct Open-Meteo forecasts.'
+  };
 
   const handlePanchayatChange = (panchayatId: string) => {
     const found = PANCHAYATS.find(p => p.id === panchayatId);
@@ -194,8 +217,8 @@ export const HyperlocalWeatherPage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
-                <div className="text-slate-500 text-[10px]">Rain Probability</div>
-                <div className="text-base font-bold text-slate-700">{comparison.districtForecast.rainProb}%</div>
+                <div className="text-slate-500 text-[10px]">Rainfall Probability</div>
+                <div className="text-base font-bold text-slate-700">Unavailable</div>
               </div>
               <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
                 <div className="text-slate-500 text-[10px]">Expected Warning</div>
@@ -227,8 +250,8 @@ export const HyperlocalWeatherPage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-2.5 bg-white border border-emerald-300 rounded-lg">
-                <div className="text-slate-500 text-[10px]">Local Rain Probability</div>
-                <div className="text-base font-black text-blue-700">{comparison.panchayatForecast.rainProb}%</div>
+                <div className="text-slate-500 text-[10px]">Local Rainfall Probability</div>
+                <div className="text-base font-black text-blue-700">Unavailable</div>
               </div>
               <div className="p-2.5 bg-white border border-emerald-300 rounded-lg">
                 <div className="text-slate-500 text-[10px]">Downscaled Hazard</div>
@@ -248,19 +271,19 @@ export const HyperlocalWeatherPage: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
         <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-1">
           <span className="text-[10px] uppercase font-bold text-slate-400">Air Temp</span>
-          <div className="text-xl font-bold text-slate-900">{weather.temp}°C</div>
-          <span className="text-[9px] text-slate-500">Feels {weather.feelsLike}°C</span>
+          <div className="text-xl font-bold text-slate-900">{weather.temp.toFixed(1)}°C</div>
+          <span className="text-[9px] text-emerald-700">ML Downscaled</span>
         </div>
 
         <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-1">
           <span className="text-[10px] uppercase font-bold text-slate-400">Rain Prob</span>
-          <div className="text-xl font-bold text-blue-600">{weather.rainProbability}%</div>
-          <span className="text-[9px] text-slate-500">{weather.rainfallMm} mm rate</span>
+          <div className="text-xl font-bold text-blue-600">{weather.rainfallMm.toFixed(1)} mm</div>
+          <span className="text-[9px] text-slate-500">Live forecast</span>
         </div>
 
         <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-1">
           <span className="text-[10px] uppercase font-bold text-slate-400">Wind Velocity</span>
-          <div className="text-xl font-bold text-slate-900">{weather.windSpeed}</div>
+          <div className="text-xl font-bold text-slate-900">{weather.windSpeed.toFixed(1)}</div>
           <span className="text-[9px] text-slate-500">km/h ({weather.windDirection})</span>
         </div>
 
@@ -272,8 +295,8 @@ export const HyperlocalWeatherPage: React.FC = () => {
 
         <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-1">
           <span className="text-[10px] uppercase font-bold text-slate-400">Soil Moisture</span>
-          <div className="text-xl font-bold text-indigo-700">{weather.soilMoisture}%</div>
-          <span className="text-[9px] text-slate-500">Root zone 15cm</span>
+          <div className="text-xl font-bold text-indigo-700">Unavailable</div>
+          <span className="text-[9px] text-slate-500">Not supplied by API</span>
         </div>
 
         <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-1">
@@ -284,14 +307,14 @@ export const HyperlocalWeatherPage: React.FC = () => {
 
         <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-1">
           <span className="text-[10px] uppercase font-bold text-slate-400">UV Index</span>
-          <div className="text-xl font-bold text-amber-700">{weather.uvIndex}</div>
-          <span className="text-[9px] text-slate-500">Moderate solar</span>
+          <div className="text-xl font-bold text-amber-700">Unavailable</div>
+          <span className="text-[9px] text-slate-500">Not supplied by API</span>
         </div>
 
         <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-1">
           <span className="text-[10px] uppercase font-bold text-slate-400">Confidence</span>
-          <div className="text-xl font-bold text-emerald-700">{weather.riskConfidence}%</div>
-          <span className="text-[9px] text-slate-500">Cross-validated</span>
+          <div className="text-xl font-bold text-emerald-700">Live</div>
+          <span className="text-[9px] text-slate-500">No confidence score claimed</span>
         </div>
       </div>
 
@@ -310,11 +333,11 @@ export const HyperlocalWeatherPage: React.FC = () => {
 
         <div className="overflow-x-auto pb-2">
           <div className="flex gap-3 min-w-[700px]">
-            {HOURLY_FORECASTS.map((h, i) => (
+            {hourlyForecasts.map((h, i) => (
               <div 
                 key={i} 
                 className={`flex-1 p-3 rounded-xl border text-center space-y-1.5 transition-all ${
-                  h.rainProb > 70 
+                  h.rainfallMm > 0
                     ? 'bg-blue-50/80 border-blue-300 shadow-2xs' 
                     : 'bg-slate-50 border-slate-200'
                 }`}

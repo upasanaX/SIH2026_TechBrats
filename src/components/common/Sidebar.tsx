@@ -10,12 +10,12 @@ import {
   Store, 
   ShoppingCart, 
   Building2, 
-  Radio, 
   HelpCircle, 
-  Cpu, 
-  LogIn, 
   Settings,
-  ChevronRight
+  ChevronRight,
+  Upload,
+  Users
+  ,ClipboardList
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,7 +24,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
-  const { activeTab, setActiveTab, alerts, currentPanchayat, cart, t } = useApp();
+  const { activeTab, setActiveTab, alerts, currentPanchayat, cart, t, currentRole, isAuthenticated } = useApp();
 
   const activeAlertCount = alerts.filter(
     a => a.primaryPanchayatId === currentPanchayat.id && (a.severity === 'critical' || a.severity === 'high')
@@ -32,54 +32,41 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
 
   const cartItemCount = cart.reduce((tot, i) => tot + i.quantity, 0);
 
-  const navSections = [
+  const isGovtOrFpo = currentRole === 'fpo' || currentRole === 'government' || currentRole === 'official';
+  const isConsumer = currentRole === 'consumer';
+
+  const allNavSections = [
     {
       title: t('operationalHub'),
       items: [
-        { id: 'landing', label: t('publicHome'), icon: Home },
-        { id: 'farmer', label: t('navFarmerDashboard'), icon: LayoutDashboard },
-        { id: 'weather', label: t('navWeather'), icon: CloudSun },
-        { 
-          id: 'alerts', 
-          label: t('navAlerts'), 
-          icon: ShieldAlert, 
-          badge: activeAlertCount > 0 ? activeAlertCount : undefined,
-          badgeColor: 'bg-red-600 text-white'
-        },
-        { id: 'advisory', label: t('navAdvisory'), icon: Sprout }
+        ...(isAuthenticated && !isConsumer && !isGovtOrFpo ? [{ id: 'farmer', label: t('navFarmerDashboard'), icon: LayoutDashboard }] : []),
+        ...(isAuthenticated && !isConsumer && !isGovtOrFpo ? [{ id: 'farmer-listing', label: t('uploadCropListing'), icon: Upload }] : []),
+        ...(isAuthenticated && !isConsumer && !isGovtOrFpo ? [{ id: 'farmer-orders', label: t('farmerOrders'), icon: ClipboardList }] : []),
+        ...(isAuthenticated && !isConsumer && !isGovtOrFpo ? [{ id: 'alerts', label: t('navAlerts'), icon: ShieldAlert, badge: activeAlertCount > 0 ? activeAlertCount : undefined, badgeColor: 'bg-red-600 text-white' }] : []),
+        ...(isConsumer ? [{ id: 'marketplace', label: t('navMarketplace'), icon: Store }] : []),
+        ...(isConsumer ? [{ id: 'cart', label: t('cartOrderFlow'), icon: ShoppingCart, badge: cartItemCount > 0 ? cartItemCount : undefined, badgeColor: 'bg-emerald-600 text-white' }] : []),
+        ...(isGovtOrFpo ? [{ id: 'government', label: t('adminAnalytics'), icon: Building2 }] : []),
       ]
     },
-    {
+    ...(isAuthenticated && !isGovtOrFpo && !isConsumer ? [{
       title: t('fieldDirectTrade'),
       items: [
-        { id: 'map', label: t('navMap'), icon: Map },
-        { id: 'marketplace', label: t('navMarketplace'), icon: Store },
-        { 
-          id: 'cart', 
-          label: t('cartOrderFlow'), 
-          icon: ShoppingCart,
-          badge: cartItemCount > 0 ? cartItemCount : undefined,
-          badgeColor: 'bg-emerald-600 text-white'
-        }
+        { id: 'about', label: t('navAbout'), icon: HelpCircle }
       ]
-    },
-    {
-      title: t('governanceReach'),
-      items: [
-        { id: 'government', label: t('navGovernment'), icon: Building2 },
-        { id: 'communication', label: t('smsIvrCenter'), icon: Radio }
-      ]
-    },
+    }] : []),
+    ...(isAuthenticated && (isConsumer || isGovtOrFpo) ? [{
+      title: isGovtOrFpo ? t('governanceReachLabel') : t('fieldDirectTrade'),
+      items: isGovtOrFpo ? [{ id: 'about', label: t('navAbout'), icon: HelpCircle }] : [{ id: 'about', label: t('navAbout'), icon: HelpCircle }]
+    }] : []),
     {
       title: t('platformOverview'),
       items: [
-        { id: 'about', label: t('navAbout'), icon: HelpCircle },
-        { id: 'architecture', label: t('technicalArchitecture'), icon: Cpu },
-        { id: 'auth', label: t('loginRegistration'), icon: LogIn },
-        { id: 'settings', label: 'Settings & Privacy', icon: Settings }
+        ...(isAuthenticated ? [{ id: 'settings', label: t('settingsPrivacy'), icon: Settings }] : [])
       ]
     }
   ];
+
+  const navSections = allNavSections;
 
   return (
     <aside 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PanchayatSelectorModal } from './PanchayatSelectorModal';
-import { SmsIvrSimulatorModal } from './SmsIvrSimulatorModal';
 import { 
   MapPin, 
   Globe, 
@@ -13,8 +12,7 @@ import {
   VolumeX, 
   Menu, 
   ChevronDown,
-  Sparkles,
-  PhoneCall
+  Sparkles
 } from 'lucide-react';
 import { Language } from '../../types';
 
@@ -25,6 +23,9 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { 
     currentPanchayat, 
+    currentRole,
+    currentUser,
+    logout,
     language, 
     setLanguage, 
     cart, 
@@ -42,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   } = useApp();
 
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -76,13 +77,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                 {t('viewActionChecklist')} →
               </button>
             </div>
-            <button 
-              onClick={() => setIsSmsModalOpen(true)}
-              className="hidden sm:flex items-center gap-1 bg-white text-red-800 px-2 py-0.5 rounded-sm text-[11px] font-bold hover:bg-amber-100"
-            >
-              <PhoneCall className="w-3 h-3" />
-              {t('simulateSmsIvr')}
-            </button>
           </div>
         )}
 
@@ -104,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               onClick={() => setActiveTab('landing')}
               className="cursor-pointer flex items-center gap-2.5 group"
             >
-              <div className="w-9 h-9 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-black text-lg shadow-sm border border-emerald-800 group-hover:bg-emerald-800 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-black text-base tracking-tight shadow-sm group-hover:bg-emerald-800 transition-colors" aria-label="KrishiKavach logo">
                 KK
               </div>
               <div>
@@ -158,16 +152,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               </button>
             )}
 
-            {/* Test SMS/IVR button */}
-            <button
-              onClick={() => setIsSmsModalOpen(true)}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-700 text-white rounded-lg text-xs font-semibold hover:bg-emerald-800 transition-colors shadow-xs"
-              title={t('simulateSmsIvr')}
-            >
-              <PhoneCall className="w-3.5 h-3.5 text-emerald-200" />
-              <span>{t('smsIvrTest')}</span>
-            </button>
-
             {/* Accessibility: High Contrast */}
             <button
               onClick={() => {
@@ -207,6 +191,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               <button
                 onClick={() => {
                   setLangDropdownOpen(!langDropdownOpen);
+                  setRoleDropdownOpen(false);
                 }}
                 className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 transition-colors"
                 title={t('selectLanguage')}
@@ -241,20 +226,49 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
               )}
             </div>
 
-            {/* Cart Icon with badge */}
-            <button
-              onClick={() => setActiveTab('cart')}
-              className="relative p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 transition-colors"
-              title={t('viewCart')}
-              aria-label={t('viewCart')}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
-                  {cartItemCount}
+            {/* Authenticated account menu */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setRoleDropdownOpen(!roleDropdownOpen);
+                  setLangDropdownOpen(false);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors shadow-2xs"
+              >
+                <span className="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px]">{currentUser?.name.charAt(0) || '?'}</span>
+                <span className="hidden sm:inline">
+                  {currentUser?.name || 'Sign in'}
                 </span>
+                <ChevronDown className="w-3 h-3 text-emerald-700" />
+              </button>
+
+              {roleDropdownOpen && (
+                <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in">
+                  <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                    <div className="text-xs font-bold text-slate-900">{currentUser?.name}</div>
+                    <div className="text-[11px] text-slate-500 capitalize">{currentRole} account</div>
+                  </div>
+                  <button onClick={() => { logout(); setRoleDropdownOpen(false); }} className="w-full text-left p-2.5 rounded-lg text-xs font-bold text-red-700 hover:bg-red-50">Sign out</button>
+                </div>
               )}
-            </button>
+            </div>
+
+            {/* Cart is available only to consumers who can place orders. */}
+            {currentRole === 'consumer' && (
+              <button
+                onClick={() => setActiveTab('cart')}
+                className="relative p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 transition-colors"
+                title={t('viewCart')}
+                aria-label={t('viewCart')}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            )}
 
           </div>
 
@@ -270,12 +284,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
             <span>{currentPanchayat.name}, {currentPanchayat.district}</span>
             <span className="text-[10px] text-emerald-700 underline font-normal">({t('change')})</span>
           </button>
-          <button
-            onClick={() => setIsSmsModalOpen(true)}
-            className="text-[10px] font-bold bg-emerald-700 text-white px-2 py-0.5 rounded-sm"
-          >
-            {t('smsIvrTest')}
-          </button>
         </div>
       </header>
 
@@ -285,11 +293,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
         onClose={() => setIsLocationModalOpen(false)} 
       />
 
-      {/* SMS & IVR Broadcast Simulator */}
-      <SmsIvrSimulatorModal 
-        isOpen={isSmsModalOpen} 
-        onClose={() => setIsSmsModalOpen(false)} 
-      />
     </>
   );
 };

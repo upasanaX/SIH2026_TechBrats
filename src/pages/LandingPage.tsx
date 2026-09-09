@@ -1,34 +1,30 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { 
-  CloudRain, 
   ShieldAlert, 
   Store, 
-  Radio, 
   ArrowRight, 
   CheckCircle2, 
   Users, 
-  TrendingUp, 
   Building, 
   HeartHandshake, 
-  Smartphone, 
-  Cpu, 
   Layers, 
-  Database,
-  Compass,
-  Zap,
-  MapPin
+  Sprout,
+  Building2,
+  Landmark,
+  LogIn,
+  ChevronRight
 } from 'lucide-react';
-import { PANCHAYAT_WEATHER } from '../data/weatherData';
+import { LiveWeatherState } from '../components/common/LiveWeatherState';
 
 export const LandingPage: React.FC = () => {
-  const { setActiveTab, currentPanchayat, language } = useApp();
+  const { setActiveTab, currentPanchayat, language, currentRole, setCurrentRole, weatherReading, liveWeatherLoading, liveWeatherError } = useApp();
   const landingCopy = {
     en: { badge: 'National Agri-Tech Initiative • Dual-Channel Agri-Defense', title: 'Weather intelligence that protects every Panchayat.', description: 'KrishiKavach transforms broad regional forecasts into village-accurate weather predictions, localized disaster early warnings, crop-saving advisories, and a direct farmer-to-consumer marketplace.', live: 'View Live Farmer Dashboard', explore: 'Explore Solution Architecture', ai: 'Panchayat-Level AI', warnings: 'Disaster Warnings', sales: 'Direct Sales Hub', channels: 'App, SMS & IVR', active: 'Active', inspect: 'Inspect Panchayat Micro-Grid Comparison' },
     hi: { badge: 'राष्ट्रीय कृषि-तकनीक पहल • दो-चैनल कृषि सुरक्षा', title: 'मौसम की जानकारी हर पंचायत की रक्षा करती है।', description: 'कृषिकवच क्षेत्रीय पूर्वानुमानों को गांव-स्तरीय मौसम जानकारी, स्थानीय आपदा चेतावनी, फसल सलाह और सीधे किसान-उपभोक्ता बाजार में बदलता है।', live: 'किसान डैशबोर्ड देखें', explore: 'समाधान वास्तुकला देखें', ai: 'पंचायत-स्तरीय AI', warnings: 'आपदा चेतावनियां', sales: 'सीधा बिक्री केंद्र', channels: 'ऐप, SMS और IVR', active: 'सक्रिय', inspect: 'पंचायत माइक्रो-ग्रिड तुलना देखें' },
     bn: { badge: 'জাতীয় কৃষি-প্রযুক্তি উদ্যোগ • দ্বৈত-চ্যানেল কৃষি সুরক্ষা', title: 'আবহাওয়ার তথ্য প্রতিটি পঞ্চায়েতকে সুরক্ষিত করে।', description: 'কৃষিকবচ আঞ্চলিক পূর্বাভাসকে গ্রাম-নির্ভুল আবহাওয়া, স্থানীয় দুর্যোগ সতর্কতা, ফসল পরামর্শ এবং সরাসরি কৃষক-ক্রেতা বাজারে রূপান্তর করে।', live: 'কৃষক ড্যাশবোর্ড দেখুন', explore: 'সমাধানের কাঠামো দেখুন', ai: 'পঞ্চায়েত-স্তরের AI', warnings: 'দুর্যোগ সতর্কতা', sales: 'সরাসরি বিক্রয় কেন্দ্র', channels: 'অ্যাপ, SMS ও IVR', active: 'সক্রিয়', inspect: 'পঞ্চায়েত মাইক্রো-গ্রিড তুলনা দেখুন' }
   }[language];
-  const weather = PANCHAYAT_WEATHER[currentPanchayat.id] || PANCHAYAT_WEATHER['panchayat-bhangar-1'];
+  const weather = weatherReading;
 
   const pillars = [
     {
@@ -68,15 +64,51 @@ export const LandingPage: React.FC = () => {
     { title: 'Conscious Consumers', desc: 'Fresh, traceable produce straight from verified rural growers at transparent, fair-trade prices.', icon: Store }
   ];
 
-  const techEcosystem = [
-    { name: 'IMD Doppler Radars', role: 'Official Met Data' },
-    { name: 'ISRO / Bhuvan GIS', role: 'Satellite Topography & DEM' },
-    { name: 'NASA POWER', role: 'Solar Flux & Vapor Pressure' },
-    { name: 'OpenStreetMap', role: 'Panchayat Boundaries' },
-    { name: 'XGBoost & Scikit-Learn', role: 'Micro-Grid Downscaling' },
-    { name: 'FastAPI & Async Engine', role: 'Backend API Blueprint' },
-    { name: 'PostGIS Spatial DB', role: 'Geospatial Querying' },
-    { name: 'Kisan Call Center / IVR', role: 'Voice Gateway Architecture' }
+  const loginPortals = [
+    {
+      id: 'farmer' as const,
+      label: '🌾 Farmer Portal',
+      sub: 'Kisan ID, crop protection, hyperlocal weather & disaster alerts',
+      icon: Sprout,
+      gradient: 'from-emerald-600 to-emerald-800',
+      border: 'border-emerald-700',
+      badge: 'Growers & Producers',
+      badgeBg: 'bg-emerald-500/20 text-emerald-200 border-emerald-600/40',
+      role: 'farmer' as const
+    },
+    {
+      id: 'consumer' as const,
+      label: '🛒 Consumer Portal',
+      sub: 'Fresh produce, direct farm-to-door mandi & transparent pricing',
+      icon: Store,
+      gradient: 'from-amber-600 to-orange-700',
+      border: 'border-amber-700',
+      badge: 'Urban Buyers',
+      badgeBg: 'bg-amber-500/20 text-amber-200 border-amber-600/40',
+      role: 'consumer' as const
+    },
+    {
+      id: 'fpo' as const,
+      label: '🏢 FPO Co-op Portal',
+      sub: 'Bulk aggregation, member management & district monitoring',
+      icon: Building2,
+      gradient: 'from-indigo-600 to-indigo-800',
+      border: 'border-indigo-700',
+      badge: 'Cooperatives',
+      badgeBg: 'bg-indigo-500/20 text-indigo-200 border-indigo-600/40',
+      role: 'fpo' as const
+    },
+    {
+      id: 'government' as const,
+      label: '🏛️ Government Portal',
+      sub: 'District agromet oversight, emergency broadcast & analytics',
+      icon: Landmark,
+      gradient: 'from-slate-700 to-slate-900',
+      border: 'border-slate-600',
+      badge: 'IMD & Agromet',
+      badgeBg: 'bg-slate-500/20 text-slate-200 border-slate-500/40',
+      role: 'government' as const
+    }
   ];
 
   return (
@@ -109,7 +141,10 @@ export const LandingPage: React.FC = () => {
               {/* CTAs */}
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
                 <button
-                  onClick={() => setActiveTab('farmer')}
+                  onClick={() => {
+                    const section = document.getElementById('login-portals');
+                    section?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                   className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2"
                 >
                   <span>{landingCopy.live}</span>
@@ -120,7 +155,7 @@ export const LandingPage: React.FC = () => {
                   onClick={() => setActiveTab('about')}
                   className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-xl font-bold text-sm transition-colors"
                 >
-                  {landingCopy.explore}
+                  About KrishiKavach
                 </button>
               </div>
 
@@ -163,18 +198,19 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div className="p-5 space-y-4">
+                  <LiveWeatherState loading={liveWeatherLoading} error={liveWeatherError} />
                   
                   {/* Current Reading */}
                   <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                     <div>
                       <div className="text-xs text-slate-500 font-medium">Downscaled Temp & Rain</div>
-                      <div className="text-2xl font-black text-slate-900">{weather.temp}°C</div>
-                      <div className="text-xs text-emerald-700 font-semibold">{weather.rainProbability}% Rain Probability</div>
+                      <div className="text-2xl font-black text-slate-900">{weather ? `${weather.temp.toFixed(1)}°C` : 'Unavailable'}</div>
+                      <div className="text-xs text-emerald-700 font-semibold">{weather ? 'ML Downscaled' : 'Live weather unavailable'}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-slate-500">Predicted Inundation</div>
-                      <div className="text-lg font-bold text-red-600">{weather.rainfallMm} mm</div>
-                      <div className="text-[10px] text-slate-400">Confidence: {weather.riskConfidence}%</div>
+                      <div className="text-xs text-slate-500">Live Rainfall</div>
+                      <div className="text-lg font-bold text-blue-600">{weather ? `${weather.rainfallMm.toFixed(1)} mm` : 'Unavailable'}</div>
+                      <div className="text-[10px] text-slate-400">Open-Meteo forecast</div>
                     </div>
                   </div>
 
@@ -185,7 +221,7 @@ export const LandingPage: React.FC = () => {
                       Immediate Action for Aman Paddy
                     </div>
                     <p className="text-red-900 leading-snug">
-                      Convective squall within 4 hours. Unclog field corner drainage furrows. Do not spray urea.
+                      Review the live forecast before field work and follow official local advisories for emergency decisions.
                     </p>
                   </div>
 
@@ -249,7 +285,7 @@ export const LandingPage: React.FC = () => {
               </div>
               <h3 className="font-bold text-slate-900 text-base">Adjacent Village Disparity</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                One village can experience an intense 50mm cloudburst flooding young tillers, while another Panchayat 7 km away receives only dry sunshine.
+                Neighboring villages can experience very different conditions while a regional forecast remains unchanged.
               </p>
             </div>
 
@@ -397,37 +433,98 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* TECHNICAL CREDIBILITY & ECOSYSTEM SECTION */}
-      <section className="py-16 bg-slate-100 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Technology Stack Reference</h2>
-            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Built Upon Open Government Data & Scalable Systems
-            </p>
-            <p className="text-xs text-slate-500 mt-2">
-              (Prototype demonstrates complete frontend workflow using structured simulated data for SIH evaluation)
+      {/* LOGIN PORTALS SECTION */}
+      <section id="login-portals" className="py-20 bg-slate-900 relative overflow-hidden">
+        {/* Decorative bg radial */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#064e3b_0%,transparent_60%)] opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,#1e3a5f_0%,transparent_60%)] opacity-50 pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold mb-4">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Secure Role-Based Access
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+              Choose Your Portal
+            </h2>
+            <p className="text-slate-400 text-sm mt-3 max-w-xl mx-auto">
+              Each stakeholder has a dedicated, tailored experience. Select your role to access personalized dashboards, data, and tools.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {techEcosystem.map((tech, idx) => (
-              <div key={idx} className="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
-                <div className="font-bold text-slate-900 text-xs sm:text-sm">{tech.name}</div>
-                <div className="text-[11px] text-emerald-700 font-medium mt-0.5">{tech.role}</div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {loginPortals.map((portal) => {
+              const Icon = portal.icon;
+              const isActive = currentRole === portal.role;
+              return (
+                <div
+                  key={portal.id}
+                  className={`relative group rounded-2xl overflow-hidden border cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-2xl ${
+                    isActive
+                      ? `bg-gradient-to-br ${portal.gradient} ${portal.border} shadow-xl`
+                      : 'bg-slate-800/80 border-slate-700 hover:border-slate-500'
+                  }`}
+                  onClick={() => {
+                    setCurrentRole(portal.role);
+                    setActiveTab('auth');
+                  }}
+                >
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        isActive ? 'bg-white/20' : 'bg-slate-700 group-hover:bg-slate-600'
+                      } transition-colors`}>
+                        <Icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-300'}`} />
+                      </div>
+                      <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border ${
+                        isActive ? portal.badgeBg : 'bg-slate-700/60 text-slate-400 border-slate-600'
+                      }`}>
+                        {portal.badge}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className={`font-black text-base leading-tight ${
+                        isActive ? 'text-white' : 'text-slate-100'
+                      }`}>
+                        {portal.label}
+                      </div>
+                      <p className={`text-xs mt-1.5 leading-relaxed ${
+                        isActive ? 'text-white/75' : 'text-slate-400'
+                      }`}>
+                        {portal.sub}
+                      </p>
+                    </div>
+
+                    <div className={`flex items-center gap-1.5 text-xs font-bold pt-1 ${
+                      isActive ? 'text-white' : 'text-emerald-400 group-hover:text-emerald-300'
+                    } transition-colors`}>
+                      {isActive ? (
+                        <><CheckCircle2 className="w-4 h-4" /> Current Role — Enter Portal</>
+                      ) : (
+                        <>Login as this role <ChevronRight className="w-3.5 h-3.5" /></>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Active glow ring */}
+                  {isActive && (
+                    <div className="absolute inset-0 rounded-2xl ring-2 ring-white/30 pointer-events-none" />
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          <div className="mt-12 text-center">
-            <button
-              onClick={() => setActiveTab('architecture')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
-            >
-              <Cpu className="w-4 h-4 text-emerald-400" />
-              <span>Inspect Detailed Data Architecture & Ingestion Flow</span>
-            </button>
+          {/* Role isolation note */}
+          <div className="mt-10 text-center">
+            <p className="text-xs text-slate-500 max-w-2xl mx-auto">
+              🔒 <strong className="text-slate-400">Role Isolation Active:</strong> Farmers & Consumers access weather, crop advisory, and marketplace only. FPO & Government users additionally access district monitoring, disaster sirens, and SMS/IVR broadcast tools.
+            </p>
           </div>
+
         </div>
       </section>
 

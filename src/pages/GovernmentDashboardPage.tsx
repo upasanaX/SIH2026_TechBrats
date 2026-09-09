@@ -4,8 +4,7 @@ import {
   FPO_METRICS, 
   RISK_DISTRIBUTION, 
   CHANNEL_PERFORMANCE, 
-  PANCHAYAT_COMPARISON_TABLE,
-  RECENT_COMMUNICATION_LOGS 
+  PANCHAYAT_COMPARISON_TABLE
 } from '../data/fpoData';
 import { RiskBadge } from '../components/common/RiskBadge';
 import { 
@@ -17,14 +16,13 @@ import {
   Download, 
   Filter, 
   Search, 
-  Calendar, 
-  Radio, 
-  Phone, 
-  MessageSquare, 
+  Calendar,
   FileText,
   Clock,
   ArrowUpDown,
   Sparkles
+  ,UserRoundCheck
+  ,UserX
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -41,7 +39,7 @@ import {
 } from 'recharts';
 
 export const GovernmentDashboardPage: React.FC = () => {
-  const { showToast } = useApp();
+  const { showToast, accounts, updateAccountStatus, removeAccount } = useApp();
   const [selectedDistrict, setSelectedDistrict] = useState<string>('all');
   const [tableSearch, setTableSearch] = useState<string>('');
   const [sortField, setSortField] = useState<string>('registeredFarmers');
@@ -379,40 +377,19 @@ export const GovernmentDashboardPage: React.FC = () => {
 
       </div>
 
-      {/* RECENT COMMUNICATION LOGS */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <Radio className="w-5 h-5 text-emerald-700" />
-            <h2 className="text-sm font-bold text-slate-900">Live Communication & Broadcast Dispatch Log</h2>
+          <div>
+            <div className="flex items-center gap-2"><UserRoundCheck className="w-5 h-5 text-emerald-700" /><h2 className="text-sm font-bold text-slate-900">Farmer & Consumer Accounts</h2></div>
+            <p className="text-xs text-slate-500 mt-1">Review and control marketplace access from this shared FPO and government register.</p>
           </div>
-          <span className="text-xs text-slate-500 font-mono">Last refreshed 2 mins ago</span>
+          <span className="text-xs font-bold text-slate-500">{accounts.length} accounts</span>
         </div>
-
-        <div className="space-y-3">
-          {RECENT_COMMUNICATION_LOGS.map(log => (
-            <div key={log.id} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded-sm uppercase font-bold text-[10px] ${
-                    log.type === 'sms' ? 'bg-emerald-100 text-emerald-800' :
-                    log.type === 'ivr' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                  }`}>
-                    {log.type.toUpperCase()}
-                  </span>
-                  <span className="font-bold text-slate-900">{log.recipientName}</span>
-                  <span className="text-slate-400 font-mono">{log.recipientPhone}</span>
-                  <span className="text-slate-500">• {log.panchayat}</span>
-                </div>
-                <p className="text-slate-600 italic">"{log.messagePreview}"</p>
-              </div>
-
-              <div className="flex items-center gap-3 shrink-0">
-                <span className="text-emerald-700 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> {log.status}
-                </span>
-                <span className="text-slate-400 font-mono text-[11px]">{log.timestamp}</span>
-              </div>
+        <div className="space-y-2">
+          {accounts.filter(account => account.role === 'farmer' || account.role === 'consumer').map(account => (
+            <div key={account.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <div className="flex items-center gap-3 min-w-0"><div className="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-black">{account.name.charAt(0)}</div><div className="min-w-0"><div className="text-xs font-bold text-slate-900 truncate">{account.name}</div><div className="text-[11px] text-slate-500 capitalize">{account.role} • {account.contact} • {account.location}</div></div></div>
+              <div className="flex items-center gap-2 shrink-0"><span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${account.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{account.status}</span><button onClick={() => updateAccountStatus(account.id, account.status === 'active' ? 'disabled' : 'active')} className="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-bold text-slate-700 hover:bg-slate-100">{account.status === 'active' ? 'Disable' : 'Enable'}</button><button onClick={() => removeAccount(account.id)} aria-label={`Remove ${account.name}`} className="p-1.5 rounded-lg text-red-600 hover:bg-red-50"><UserX className="w-4 h-4" /></button></div>
             </div>
           ))}
         </div>

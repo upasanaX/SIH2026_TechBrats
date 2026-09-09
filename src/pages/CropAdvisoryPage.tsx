@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { CROP_ADVISORIES } from '../data/advisories';
 import { PANCHAYATS } from '../data/panchayats';
 import { CropAdvisory, Language } from '../types';
+import { ADVISORY_COPY, ADVISORY_REASONS } from '../utils/advisoryTranslations';
 import { 
   Sprout, 
   Droplets, 
@@ -32,6 +33,7 @@ export const CropAdvisoryPage: React.FC = () => {
     stopSpeaking, 
     showToast 
   } = useApp();
+  const copy = ADVISORY_COPY[language];
 
   const [selectedCropId, setSelectedCropId] = useState<string>('crop-paddy');
   const [selectedStage, setSelectedStage] = useState<string>('vegetative');
@@ -56,12 +58,15 @@ export const CropAdvisoryPage: React.FC = () => {
     a => a.cropId === selectedCropId
   ) || CROP_ADVISORIES[0];
 
+  const cropName = crops.find(c => c.id === selectedCropId)?.[language === 'bn' ? 'name' : language === 'hi' ? 'hindi' : 'name'] || activeAdvisory.cropName;
+  const reason = ADVISORY_REASONS[activeAdvisory.id]?.[language] || activeAdvisory.reason;
+
   const getTranslated = (obj: { en: string; hi: string; bn: string }) => {
     return obj[language] || obj.en;
   };
 
   const handleSpeak = () => {
-    const textToSpeak = `${activeAdvisory.cropName} Advisory for ${currentPanchayat.name}. Today's priority action: ${getTranslated(activeAdvisory.todayAction)}. Irrigation guidance: ${getTranslated(activeAdvisory.irrigationGuidance)}.`;
+    const textToSpeak = `${cropName}, ${copy.voiceSummary}: ${getTranslated(activeAdvisory.todayAction)}. ${copy.irrigation}: ${getTranslated(activeAdvisory.irrigationGuidance)}. ${copy.why} ${reason}`;
     speakAdvisory(textToSpeak, language);
   };
 
@@ -73,14 +78,14 @@ export const CropAdvisoryPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Crop Protection & Agronomic Advisory
+              {copy.title}
             </h1>
             <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-sm border border-emerald-300">
-              Weather-Triggered
+              {copy.badge}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Phenological and soil-moisture recommendations calibrated to current Panchayat precipitation forecasts
+            {copy.description}
           </p>
         </div>
 
@@ -115,7 +120,7 @@ export const CropAdvisoryPage: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
             >
               <Volume2 className="w-4 h-4" />
-              <span>Read Aloud in {language.toUpperCase()}</span>
+              <span>{copy.readAloud} ({language.toUpperCase()})</span>
             </button>
           ) : (
             <button
@@ -123,7 +128,7 @@ export const CropAdvisoryPage: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs animate-pulse"
             >
               <VolumeX className="w-4 h-4" />
-              <span>Stop Voice Audio</span>
+              <span>{copy.stopAudio}</span>
             </button>
           )}
         </div>
@@ -135,7 +140,7 @@ export const CropAdvisoryPage: React.FC = () => {
         {/* Crop Selector */}
         <div>
           <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">
-            Select Target Crop
+            {copy.selectCrop}
           </label>
           <select
             value={selectedCropId}
@@ -151,7 +156,7 @@ export const CropAdvisoryPage: React.FC = () => {
         {/* Growth Stage */}
         <div>
           <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">
-            Crop Growth Stage
+            {copy.growthStage}
           </label>
           <select
             value={selectedStage}
@@ -167,7 +172,7 @@ export const CropAdvisoryPage: React.FC = () => {
         {/* Panchayat Location */}
         <div>
           <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">
-            Panchayat Soil / Elevation
+            {copy.panchayatSoil}
           </label>
           <select
             value={currentPanchayat.id}
@@ -186,7 +191,7 @@ export const CropAdvisoryPage: React.FC = () => {
         {/* Soil Type */}
         <div>
           <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">
-            Soil Texture Class
+            {copy.soilTexture}
           </label>
           <select
             value={selectedSoil}
@@ -208,12 +213,12 @@ export const CropAdvisoryPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
             <span className="text-xs uppercase font-bold tracking-wider text-emerald-200">
-              Today's Priority Recommendation ({activeAdvisory.validityPeriod})
+              {copy.priority} ({activeAdvisory.validityPeriod})
             </span>
           </div>
 
           <span className="px-2.5 py-0.5 rounded-sm bg-red-600 text-white text-[10px] font-extrabold uppercase tracking-wider">
-            Priority: {activeAdvisory.priority}
+            {copy.recommendation}: {activeAdvisory.priority}
           </span>
         </div>
 
@@ -225,7 +230,7 @@ export const CropAdvisoryPage: React.FC = () => {
         <div className="p-3 bg-emerald-950/70 border border-emerald-700/60 rounded-xl text-xs text-emerald-200 flex items-start gap-2">
           <HelpCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
           <div>
-            <strong>Why this advisory was generated:</strong> {activeAdvisory.reason}
+            <strong>{copy.why}</strong> {reason}
           </div>
         </div>
       </div>
@@ -237,13 +242,13 @@ export const CropAdvisoryPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
           <div className="flex items-center gap-2.5 text-blue-700 font-bold text-sm pb-2 border-b border-slate-100">
             <Droplets className="w-5 h-5" />
-            <h3>Irrigation & Water Management</h3>
+            <h3>{copy.irrigation}</h3>
           </div>
           <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium">
             {getTranslated(activeAdvisory.irrigationGuidance)}
           </p>
           <div className="text-[11px] text-slate-500 bg-blue-50/70 p-2.5 rounded-lg border border-blue-100">
-            <strong>Rule of thumb:</strong> Inundation exceeding root respiration tolerance causes irreversible chlorophyll bleaching.
+            <strong>{copy.rule}</strong> {language === 'hi' ? 'जड़ की सहनशीलता से अधिक जलभराव से पत्तियों का रंग स्थायी रूप से फीका पड़ सकता है।' : language === 'bn' ? 'শিকড়ের সহনশীলতার বেশি জল জমলে পাতার রং স্থায়ীভাবে ফ্যাকাশে হতে পারে।' : 'Inundation exceeding root respiration tolerance causes irreversible chlorophyll bleaching.'}
           </div>
         </div>
 
@@ -251,13 +256,13 @@ export const CropAdvisoryPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
           <div className="flex items-center gap-2.5 text-amber-700 font-bold text-sm pb-2 border-b border-slate-100">
             <Bug className="w-5 h-5" />
-            <h3>Pest & Disease Biological Shield</h3>
+            <h3>{copy.pest}</h3>
           </div>
           <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium">
             {getTranslated(activeAdvisory.pestDiseasePrecaution)}
           </p>
           <div className="text-[11px] text-slate-500 bg-amber-50/70 p-2.5 rounded-lg border border-amber-100">
-            <strong>Organic Alternative:</strong> 5% Neem Seed Kernel Extract (NSKE) can substitute synthetic organophosphates if rain is light.
+            <strong>{copy.organic}</strong> {language === 'hi' ? 'हल्की बारिश में 5% नीम बीज अर्क (NSKE) रासायनिक दवाओं का विकल्प हो सकता है।' : language === 'bn' ? 'হালকা বৃষ্টিতে ৫% নিমবীজ নির্যাস (NSKE) রাসায়নিক ওষুধের বিকল্প হতে পারে।' : '5% Neem Seed Kernel Extract (NSKE) can substitute synthetic organophosphates if rain is light.'}
           </div>
         </div>
 
@@ -265,13 +270,13 @@ export const CropAdvisoryPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
           <div className="flex items-center gap-2.5 text-emerald-700 font-bold text-sm pb-2 border-b border-slate-100">
             <Beaker className="w-5 h-5" />
-            <h3>Fertilizer & Nutrient Timing</h3>
+            <h3>{copy.fertilizer}</h3>
           </div>
           <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium">
             {getTranslated(activeAdvisory.fertilizerTiming)}
           </p>
           <div className="text-[11px] text-slate-500 bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-100">
-            <strong>Financial Saving:</strong> Preventing fertilizer leaching saves approximately ₹1,200/bigha in input replacement costs.
+            <strong>{copy.saving}</strong> {language === 'hi' ? 'उर्वरक बहने से रोकने पर इनपुट लागत में लगभग ₹1,200/बीघा की बचत होती है।' : language === 'bn' ? 'সার ধুয়ে যাওয়া রোধ করলে প্রায় ₹১,২০০/বিঘা খরচ বাঁচে।' : 'Preventing fertilizer leaching saves approximately ₹1,200/bigha in input replacement costs.'}
           </div>
         </div>
 
@@ -279,13 +284,13 @@ export const CropAdvisoryPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
           <div className="flex items-center gap-2.5 text-slate-800 font-bold text-sm pb-2 border-b border-slate-100">
             <Package className="w-5 h-5" />
-            <h3>Harvest Protection & Post-Harvest Storage</h3>
+            <h3>{copy.harvest}</h3>
           </div>
           <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium">
             {getTranslated(activeAdvisory.harvestStorageAdvice)}
           </p>
           <div className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-            <strong>Market Link:</strong> If crops are harvested early to avoid spoilage, use the Direct Marketplace to sell immediately without middleman loss.
+            <strong>{copy.market}</strong> {language === 'hi' ? 'खराब होने से बचाने के लिए जल्दी कटाई हो तो सीधे बाजार में बेचें और बिचौलिया नुकसान से बचें।' : language === 'bn' ? 'নষ্ট হওয়া এড়াতে আগে ফসল কাটলে সরাসরি বাজারে বিক্রি করে মধ্যস্বত্বভোগীর ক্ষতি এড়ান।' : 'If crops are harvested early to avoid spoilage, use the Direct Marketplace to sell immediately without middleman loss.'}
           </div>
         </div>
 
@@ -295,9 +300,9 @@ export const CropAdvisoryPage: React.FC = () => {
       <div className="p-4 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-between text-xs text-slate-600 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>Validated by Krishi Vigyan Kendra (KVK) Agronomist Ruleset & ICAR guidelines.</span>
+          <span>{copy.validated}</span>
         </div>
-        <span className="font-mono text-slate-500">Validity: 48 Hours</span>
+        <span className="font-mono text-slate-500">{copy.validity}</span>
       </div>
 
     </div>

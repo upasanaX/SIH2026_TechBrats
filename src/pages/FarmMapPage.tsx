@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { PANCHAYATS } from '../data/panchayats';
-import { PANCHAYAT_WEATHER } from '../data/weatherData';
 import { Panchayat, AlertSeverity } from '../types';
 import { RiskBadge } from '../components/common/RiskBadge';
 import { 
@@ -22,9 +21,10 @@ import {
   Eye,
   Info
 } from 'lucide-react';
+import { LiveWeatherState } from '../components/common/LiveWeatherState';
 
 export const FarmMapPage: React.FC = () => {
-  const { currentPanchayat, setCurrentPanchayat, alerts, setActiveTab, showToast } = useApp();
+  const { currentPanchayat, setCurrentPanchayat, alerts, setActiveTab, showToast, weatherReading, liveWeatherLoading, liveWeatherError } = useApp();
   const [selectedMapPanchayat, setSelectedMapPanchayat] = useState<Panchayat>(currentPanchayat);
   
   // Layer Toggles
@@ -38,7 +38,7 @@ export const FarmMapPage: React.FC = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const weather = PANCHAYAT_WEATHER[selectedMapPanchayat.id] || PANCHAYAT_WEATHER['panchayat-bhangar-1'];
+  const weather = selectedMapPanchayat.id === currentPanchayat.id ? weatherReading : null;
   const activeAlertsForPanchayat = alerts.filter(a => a.primaryPanchayatId === selectedMapPanchayat.id);
 
   const handleSelectPanchayat = (p: Panchayat) => {
@@ -335,17 +335,18 @@ export const FarmMapPage: React.FC = () => {
           </div>
 
           {/* Current Localized Readings */}
+          {!weather && <LiveWeatherState loading={liveWeatherLoading} error={liveWeatherError} />}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
               <div className="text-[10px] text-slate-500 font-medium">Temperature</div>
-              <div className="text-base font-bold text-slate-900 mt-0.5">{weather.temp}°C</div>
-              <div className="text-[10px] text-slate-400">Feels {weather.feelsLike}°C</div>
+              <div className="text-base font-bold text-slate-900 mt-0.5">{weather ? `${weather.temp.toFixed(1)}°C` : 'Unavailable'}</div>
+              <div className="text-[10px] text-emerald-700">{weather ? 'ML Downscaled' : 'Live weather unavailable'}</div>
             </div>
 
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
               <div className="text-[10px] text-slate-500 font-medium">Rainfall Projected</div>
-              <div className="text-base font-bold text-blue-700 mt-0.5">{weather.rainProbability}%</div>
-              <div className="text-[10px] text-slate-400">{weather.rainfallMm} mm accumulation</div>
+              <div className="text-base font-bold text-blue-700 mt-0.5">{weather ? `${weather.rainfallMm.toFixed(1)} mm` : 'Unavailable'}</div>
+              <div className="text-[10px] text-slate-400">Live forecast</div>
             </div>
 
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">

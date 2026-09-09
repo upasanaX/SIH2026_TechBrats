@@ -71,28 +71,37 @@ The prototype implements 15 structured pages and views:
 
 ---
 
-## 🔌 API Readiness: Where to Connect Production Backends
+## 🌦️ Live Weather Integration
 
-The frontend is structured with modular data services in `src/data/` and `src/context/AppContext.tsx`. Connecting real backend APIs requires updating only the service endpoints:
+The weather dashboard now uses the local FastAPI service in `api/`. Open-Meteo's forecast endpoint is used without an API key. Temperature alone receives the existing saved spatial XGBoost residual correction; rainfall, humidity, wind, pressure, and cloud cover remain direct Open-Meteo values.
+
+The prototype supports exactly these five LGD codes, using verified coordinates and elevation from `data/processed/panchayat_elevation.csv`:
+
+| LGD | Panchayat |
+|---:|---|
+| 260972 | Aahaley |
+| 108220 | Abad Bhagawanpur |
+| 108917 | Abinashpur |
+| 109013 | Adabari |
+| 107777 | Adhata |
+
+The temperature benchmark in `data/reports/temperature_model_comparison.csv` is against Open-Meteo-derived reference data, not station-ground-truth accuracy.
+
+The remaining modules retain their existing sandbox/local API behavior:
 
 ```typescript
-// 1. Weather Downscaling Service (src/data/weatherData.ts)
-// Replace static mock with FastAPI endpoint:
-// GET /api/v1/weather/downscaled?lat={lat}&lng={lng}&panchayat_id={id}
-// Connects to: IMD AWS API, NASA POWER, and XGBoost spatial regression model.
-
-// 2. Localized Disaster Alerts (src/data/alerts.ts)
+// 1. Localized Disaster Alerts (src/data/alerts.ts)
 // Replace with WebSocket or Polling:
 // GET /api/v1/alerts/active?panchayat_id={id}
 // Dispatches to: Twilio / Exotel / Kisan Call Center telecom gateway for SMS and automated IVR voice calls.
 
-// 3. Direct Marketplace & Orders (src/data/products.ts & CartContext)
+// 2. Direct Marketplace & Orders (src/data/products.ts & CartContext)
 // Replace with REST endpoints:
 // GET /api/v1/marketplace/products?category={cat}&district={district}
 // POST /api/v1/marketplace/orders
 // Connects to: PostgreSQL/PostGIS database with UPI QR settlement.
 
-// 4. Multi-Language Voice Synthesis (src/context/AppContext.tsx)
+// 3. Multi-Language Voice Synthesis (src/context/AppContext.tsx)
 // Currently uses the browser's native window.speechSynthesis (Web Speech API).
 // In production, connect to Bhashini (National Language Translation Mission) for 22 Indian languages.
 ```
@@ -136,6 +145,27 @@ Marketplace order cancellation endpoints are available under `/api/v1/marketplac
 - `POST /:id/cancellation/respond` for the assigned farmer, with `{ "approve": true|false }`.
 - `GET /:id` returns `cancellationDeadline` for the live 30-minute countdown.
 
+### Run the FastAPI Weather Service
+
+The weather service loads the existing model once at startup and does not require an Open-Meteo API key. Install its dependencies once, then start it in a separate terminal:
+
+```bash
+python -m pip install -r api/requirements.txt
+python -m uvicorn api.main:app --reload --port 8000
+```
+
+FastAPI URLs:
+
+- `http://localhost:8000/docs`
+- `GET /health`
+- `GET /api/v1/panchayats`
+- `GET /api/v1/weather/downscaled?lgd_code=260972`
+- `GET /api/v1/weather/raw?lgd_code=260972`
+- `GET /api/v1/model/status`
+- `GET /api/v1/model/metrics`
+
+The React client calls `http://localhost:8000` by default. Set `VITE_WEATHER_API_BASE` only when the backend runs at another URL; do not put credentials in frontend environment variables.
+
 ### Build Production Bundle
 ```bash
 npm run build
@@ -150,7 +180,7 @@ Generates clean, minified production assets into the `dist/` directory.
    - *Farmer Dashboard* (Crop defense, weather trends, action checklist)
    - *Consumer Marketplace* (Direct farm-fresh produce purchase)
    - *Govt / FPO Monitoring* (District-level KPIs, sortable Panchayat comparison table, print report)
-2. **Panchayat Switcher**: Click the location button in the header (`Bhangar-I`) to switch to other Panchayats like `Canning-II` (Coastal Inundation) or `Singur` (Potato Belt).
+2. **Panchayat Switcher**: Click the location button in the header to switch among Aahaley, Abad Bhagawanpur, Abinashpur, Adabari, and Adhata.
 3. **SMS & IVR Simulator**: Click the **"SMS / IVR Test"** button in the header or on any alert card to test feature-phone SMS formatting and live synthetic voice phone call audio.
 4. **Crop Advisory**: Navigate to **Crop Advisory**, switch languages to *বাংলা* or *हिंदी*, and click **"Read Aloud"** to hear spoken agronomic recommendations.
 5. **Direct Checkout**: In **Direct Marketplace**, click **"Price Breakdown"** on any crop to see middleman savings, add items, and complete the 5-step simulated checkout with confetti confirmation.

@@ -9,15 +9,12 @@ import {
   Award, 
   Lightbulb, 
   CheckCircle2, 
-  ArrowRight,
   TrendingUp,
-  Cpu,
   HeartHandshake,
   Globe2
 } from 'lucide-react';
 
 export const AboutSolutionPage: React.FC = () => {
-  const { setActiveTab } = useApp();
 
   const uniquenessPoints = [
     {
@@ -35,21 +32,6 @@ export const AboutSolutionPage: React.FC = () => {
     {
       title: 'Zero-Digital-Divide Multi-Channel Delivery',
       desc: 'Ensures equitable access across modern smartphone apps, basic ₹1,000 keypad feature phones (SMS), and regional automated IVR voice calls in Hindi and Bengali.'
-    }
-  ];
-
-  const feasibilityPoints = [
-    {
-      title: 'Software-First Architecture',
-      desc: 'Requires no expensive physical hardware deployment on farmer fields. Uses existing meteorological satellite telemetry, open GIS data, and cloud-native serverless compute.'
-    },
-    {
-      title: 'Open Data & API Integration Points',
-      desc: 'Pre-architected to ingest IMD Doppler radars, NASA POWER solar datasets, ISRO/Bhuvan topography, and OpenStreetMap administrative boundary layers.'
-    },
-    {
-      title: 'Extensible to Rural FPOs & Cooperatives',
-      desc: 'Leverages existing Primary Agricultural Credit Societies (PACS) and FPOs as local aggregation points, minimizing supply-chain onboarding friction.'
     }
   ];
 
@@ -95,22 +77,6 @@ export const AboutSolutionPage: React.FC = () => {
             A farmer-first digital ecosystem transforming broad meteorological data into hyperlocal Panchayat-level early warnings, agronomic advisories, and a direct marketplace to protect farmer yields and income.
           </p>
 
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              onClick={() => setActiveTab('farmer')}
-              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2"
-            >
-              <span>Explore Live Prototype</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab('architecture')}
-              className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold border border-slate-300"
-            >
-              View System Architecture
-            </button>
-          </div>
         </div>
       </div>
 
@@ -184,25 +150,8 @@ export const AboutSolutionPage: React.FC = () => {
       {/* FEASIBILITY & VIABILITY */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Feasibility (6 Cols) */}
-        <div className="lg:col-span-6 bg-white rounded-3xl p-8 border border-slate-200 shadow-xs space-y-5">
-          <div className="space-y-1">
-            <div className="text-xs font-bold uppercase text-blue-700 tracking-wider">Implementation Viability</div>
-            <h3 className="text-xl font-black text-slate-900">Practical & Scalable Rollout</h3>
-          </div>
-
-          <div className="space-y-3.5">
-            {feasibilityPoints.map((pt, i) => (
-              <div key={i} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                <h4 className="font-bold text-slate-900 text-xs">{pt.title}</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">{pt.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Viability Metrics (6 Cols) */}
-        <div className="lg:col-span-6 bg-white rounded-3xl p-8 border border-slate-200 shadow-xs space-y-5">
+        <div className="lg:col-span-12 bg-white rounded-3xl p-8 border border-slate-200 shadow-xs space-y-5">
           <div className="space-y-1">
             <div className="text-xs font-bold uppercase text-emerald-700 tracking-wider">Socio-Economic Impact</div>
             <h3 className="text-xl font-black text-slate-900">Economic & Agronomic Viability</h3>

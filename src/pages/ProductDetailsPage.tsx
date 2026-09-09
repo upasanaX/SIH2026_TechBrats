@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../data/products';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -20,13 +19,13 @@ import {
 } from 'lucide-react';
 
 export const ProductDetailsPage: React.FC = () => {
-  const { selectedProductId, setSelectedProductId, addToCart, setActiveTab, showToast } = useApp();
+  const { selectedProductId, setSelectedProductId, addToCart, setActiveTab, showToast, products } = useApp();
   const [quantity, setQuantity] = useState<number>(5);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState<boolean>(false);
   const [messageText, setMessageText] = useState<string>('');
 
-  const product = PRODUCTS.find(p => p.id === selectedProductId) || PRODUCTS[0];
-  const related = PRODUCTS.filter(p => p.id !== product.id).slice(0, 3);
+  const product = products.find(p => p.id === selectedProductId) || products[0];
+  const related = products.filter(p => p.id !== product.id).slice(0, 3);
 
   const handleAddToCart = () => {
     addToCart(product, quantity);

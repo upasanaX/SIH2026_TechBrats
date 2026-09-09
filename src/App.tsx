@@ -16,14 +16,14 @@ import { MarketplacePage } from './pages/MarketplacePage';
 import { ProductDetailsPage } from './pages/ProductDetailsPage';
 import { CartOrderPage } from './pages/CartOrderPage';
 import { GovernmentDashboardPage } from './pages/GovernmentDashboardPage';
-import { AccessibilityCommPage } from './pages/AccessibilityCommPage';
 import { AboutSolutionPage } from './pages/AboutSolutionPage';
-import { TechnicalArchitecturePage } from './pages/TechnicalArchitecturePage';
 import { AuthPage } from './pages/AuthPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { FarmerListingPage } from './pages/FarmerListingPage';
+import { FarmerOrdersPage } from './pages/FarmerOrdersPage';
 
 const AppContent: React.FC = () => {
-  const { activeTab, setActiveTab } = useApp();
+  const { activeTab, setActiveTab, currentRole, isAuthenticated } = useApp();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Scroll to top on tab change
@@ -31,7 +31,73 @@ const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
 
+  const allowedTabsByRole: Record<string, string[]> = {
+    farmer: ['farmer', 'alerts', 'about', 'settings', 'auth', 'farmer-listing', 'farmer-orders'],
+    consumer: ['marketplace', 'product', 'cart', 'about', 'settings', 'auth'],
+    fpo: ['government', 'alerts', 'about', 'settings', 'auth'],
+    government: ['government', 'alerts', 'about', 'settings', 'auth'],
+    official: ['government', 'alerts', 'about', 'settings', 'auth']
+  };
+
+  const roleHome = currentRole === 'consumer' ? 'marketplace' : (currentRole === 'fpo' || currentRole === 'government' || currentRole === 'official') ? 'government' : 'farmer';
+  const isUnauthenticated = !isAuthenticated && activeTab !== 'auth';
+  const isUnauthorizedTab = isAuthenticated && activeTab !== 'auth' && !allowedTabsByRole[currentRole]?.includes(activeTab);
+
+  useEffect(() => {
+    if (isUnauthenticated) setActiveTab('auth');
+    else if (isUnauthorizedTab) setActiveTab(roleHome);
+  }, [isUnauthenticated, isUnauthorizedTab, roleHome, setActiveTab]);
+
+  const isGovtOrFpo = currentRole === 'fpo' || currentRole === 'government' || currentRole === 'official';
+  const isRestrictedTab = activeTab === 'government' && !isGovtOrFpo;
+
+  const renderAccessRestricted = () => (
+    <div className="p-6 sm:p-12 max-w-2xl mx-auto text-center space-y-6 animate-in fade-in">
+      <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shadow-md">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+
+      <div className="space-y-2">
+        <span className="text-[11px] font-bold uppercase tracking-wider bg-red-100 text-red-800 px-3 py-1 rounded-full border border-red-200">
+          Role-Based Access Control
+        </span>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          Governance & Reach Center is Restricted
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          You are currently logged in as a <strong>{currentRole.toUpperCase()}</strong>. District oversight heatmaps, disaster sirens, and SMS/IVR broadcast tools are strictly reserved for FPO coordinators and Government Agromet authorities.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <button
+          onClick={() => setActiveTab(currentRole === 'consumer' ? 'marketplace' : 'farmer')}
+          className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+        >
+          {currentRole === 'consumer' ? 'Return to Marketplace' : 'Return to Farmer Dashboard'}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('auth')}
+          className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
+        >
+          Switch to FPO or Government Portal
+        </button>
+      </div>
+    </div>
+  );
+
   const renderActivePage = () => {
+    if (isUnauthenticated) {
+      return <AuthPage />;
+    }
+
+    if (isUnauthorizedTab || isRestrictedTab) {
+      return renderAccessRestricted();
+    }
+
     switch (activeTab) {
       case 'landing':
         return <LandingPage />;
@@ -47,18 +113,18 @@ const AppContent: React.FC = () => {
         return <FarmMapPage />;
       case 'marketplace':
         return <MarketplacePage />;
+      case 'farmer-listing':
+        return <FarmerListingPage />;
+      case 'farmer-orders':
+        return <FarmerOrdersPage />;
       case 'product':
         return <ProductDetailsPage />;
       case 'cart':
         return <CartOrderPage />;
       case 'government':
         return <GovernmentDashboardPage />;
-      case 'communication':
-        return <AccessibilityCommPage />;
       case 'about':
         return <AboutSolutionPage />;
-      case 'architecture':
-        return <TechnicalArchitecturePage />;
       case 'auth':
         return <AuthPage />;
       case 'settings':

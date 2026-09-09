@@ -1,4 +1,53 @@
-export type Role = 'farmer' | 'consumer' | 'official';
+export type Role = 'farmer' | 'consumer' | 'fpo' | 'government' | 'official';
+export type TelephonyProvider = 'twilio' | 'sinch' | 'infobip' | 'plivo';
+
+export type AccountStatus = 'active' | 'disabled' | 'pending';
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  role: Role;
+  contact: string;
+  location: string;
+  status: AccountStatus;
+  joinedAt: string;
+}
+
+export interface ProductListingInput {
+  name: string;
+  category: Product['category'];
+  quantityAvailable: number;
+  unit: string;
+  pricePerUnit: number;
+  village: string;
+  district: string;
+  harvestDate: string;
+  organic: boolean;
+  image?: string;
+}
+
+export interface TelephonyConfig {
+  provider: TelephonyProvider;
+  accountSid: string;
+  authToken: string;
+  fromNumber: string;
+  dltEntityId?: string;
+  dltTemplateId?: string;
+  baseUrl?: string; // Infobip specific
+}
+
+export interface TelephonyDispatchResult {
+  provider: TelephonyProvider;
+  type: 'sms' | 'ivr';
+  status: 'delivered' | 'queued' | 'calling' | 'failed';
+  messageId: string;
+  timestamp: string;
+  latencyMs: number;
+  carrier: string;
+  endpointUrl: string;
+  requestPayload: any;
+  responsePayload: any;
+}
 export type Language = 'en' | 'hi' | 'bn';
 export type AlertSeverity = 'critical' | 'high' | 'moderate' | 'info';
 export type AlertType = 
@@ -12,6 +61,7 @@ export type AlertType =
 
 export interface Panchayat {
   id: string;
+  lgdCode: number;
   name: string;
   bengaliName: string;
   hindiName: string;
@@ -33,20 +83,20 @@ export interface Panchayat {
 
 export interface WeatherReading {
   temp: number;
-  feelsLike: number;
+  feelsLike: number | null;
   humidity: number;
   windSpeed: number;
   windDirection: string;
-  rainProbability: number;
+  rainProbability: number | null;
   rainfallMm: number;
   pressure: number;
-  uvIndex: number;
-  soilMoisture: number; // percentage
+  uvIndex: number | null;
+  soilMoisture: number | null; // percentage
   condition: string;
   conditionBengali: string;
   conditionHindi: string;
   icon: string;
-  riskConfidence: number; // 0-100%
+  riskConfidence: number | null; // 0-100%
   lastUpdated: string;
   dataSource: string;
   validityPeriod: string;
@@ -56,7 +106,7 @@ export interface WeatherReading {
 export interface HourlyForecast {
   time: string;
   temp: number;
-  rainProb: number;
+  rainProb: number | null;
   rainfallMm: number;
   condition: string;
   icon: string;

@@ -4,7 +4,6 @@ import { DISASTER_ALERTS } from '../data/alerts';
 import { DisasterAlert, AlertSeverity, AlertType } from '../types';
 import { RiskBadge } from '../components/common/RiskBadge';
 import { AlertDetailModal } from '../components/common/AlertDetailModal';
-import { SmsIvrSimulatorModal } from '../components/common/SmsIvrSimulatorModal';
 import { 
   ShieldAlert, 
   Filter, 
@@ -13,7 +12,6 @@ import {
   MapPin, 
   Share2, 
   CheckCircle2, 
-  Radio, 
   ArrowRight,
   AlertTriangle,
   Send,
@@ -31,8 +29,6 @@ export const DisasterAlertsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   const [activeModalAlert, setActiveModalAlert] = useState<DisasterAlert | null>(null);
-  const [isSmsSimulatorOpen, setIsSmsSimulatorOpen] = useState(false);
-  const [simulatorMessage, setSimulatorMessage] = useState<string>('');
 
   const severityFilters: { id: string; label: string; count: number }[] = [
     { id: 'all', label: t('allWarnings'), count: alerts.length },
@@ -65,13 +61,6 @@ export const DisasterAlertsPage: React.FC = () => {
     return true;
   });
 
-  const handleOpenSimulator = (alert: DisasterAlert) => {
-    setSimulatorMessage(
-      `[KrishiKavach ALERT: ${alert.severity.toUpperCase()}] ${alert.title}. Window: ${alert.timeWindow}. Checklist: ${alert.actionChecklist[0]}. Helplines: 1800-180-1551.`
-    );
-    setIsSmsSimulatorOpen(true);
-  };
-
   const handleShare = (alert: DisasterAlert) => {
     const text = `KrishiKavach Localized Weather Warning for ${alert.affectedPanchayats.join(', ')}: ${alert.title}. Time: ${alert.timeWindow}. Action: ${alert.actionChecklist[0]}`;
     navigator.clipboard?.writeText?.(text);
@@ -97,18 +86,6 @@ export const DisasterAlertsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <button
-            onClick={() => {
-              setSimulatorMessage('');
-              setIsSmsSimulatorOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors shadow-xs"
-          >
-            <Radio className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Simulate SMS / IVR Broadcast</span>
-          </button>
-        </div>
       </div>
 
       {/* FILTERS TOOLBAR */}
@@ -254,14 +231,6 @@ export const DisasterAlertsPage: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => handleOpenSimulator(alert)}
-                    className="w-full sm:w-auto px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <Radio className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Test SMS / IVR</span>
-                  </button>
-
-                  <button
                     onClick={() => handleShare(alert)}
                     className="w-full sm:w-auto px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
                   >
@@ -301,17 +270,6 @@ export const DisasterAlertsPage: React.FC = () => {
       <AlertDetailModal 
         alert={activeModalAlert}
         onClose={() => setActiveModalAlert(null)}
-        onOpenSimulator={() => {
-          if (activeModalAlert) handleOpenSimulator(activeModalAlert);
-          setActiveModalAlert(null);
-        }}
-      />
-
-      {/* SMS/IVR Simulator Modal */}
-      <SmsIvrSimulatorModal 
-        isOpen={isSmsSimulatorOpen}
-        onClose={() => setIsSmsSimulatorOpen(false)}
-        customMessage={simulatorMessage}
       />
 
     </div>

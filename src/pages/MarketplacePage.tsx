@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../data/products';
 import { Product } from '../types';
 import { 
   Store, 
@@ -21,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export const MarketplacePage: React.FC = () => {
-  const { addToCart, setActiveTab, setSelectedProductId, showToast, t } = useApp();
+  const { addToCart, setActiveTab, setSelectedProductId, showToast, t, products } = useApp();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('freshness');
@@ -44,7 +43,7 @@ export const MarketplacePage: React.FC = () => {
     { id: 'Purba Bardhaman', label: 'Purba Bardhaman' }
   ];
 
-  const filteredProducts = PRODUCTS.filter(p => {
+  const filteredProducts = products.filter(p => {
     if (selectedCategory !== 'all' && p.category !== selectedCategory) return false;
     if (selectedLocation !== 'all' && p.district !== selectedLocation) return false;
     if (showOnlyOrganic && !p.organic) return false;
