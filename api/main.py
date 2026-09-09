@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from .weather_service import WeatherService, WeatherServiceError
+from weather_service import WeatherService, WeatherServiceError
 
 
 app = FastAPI(title="KrishiKavach Weather API", version="1.0.0")
